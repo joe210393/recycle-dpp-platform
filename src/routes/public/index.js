@@ -61,12 +61,22 @@ const defaultPassportHero = {
 
 router.get('/', async (req, res, next) => {
   try {
-    const [heroes, flowSteps] = await Promise.all([
-      homeHeroService.listAll(),
-      homeFlowStepService.listAll(),
-    ]);
+    // Important: on a fresh Zeabur DB, migrations might not have run yet.
+    // If tables don't exist, fall back to defaults to avoid 500.
+    let heroes = [];
+    let flowSteps = [];
+    try {
+      heroes = await homeHeroService.listAll();
+    } catch (err) {
+      if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
+    }
+    try {
+      flowSteps = await homeFlowStepService.listAll();
+    } catch (err) {
+      if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
+    }
 
-    const hero = heroes[0] || defaultHero;
+    const hero = heroes && heroes[0] ? heroes[0] : defaultHero;
     const flow = (flowSteps && flowSteps.length > 0
       ? [...flowSteps].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
       : defaultFlowSteps);
@@ -79,8 +89,13 @@ router.get('/', async (req, res, next) => {
 
 router.get('/about', async (req, res, next) => {
   try {
-    const heroes = await aboutHeroService.listAll();
-    const hero = heroes[0] || defaultAboutHero;
+    let heroes = [];
+    try {
+      heroes = await aboutHeroService.listAll();
+    } catch (err) {
+      if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
+    }
+    const hero = heroes && heroes[0] ? heroes[0] : defaultAboutHero;
     return res.render('public/about', { hero });
   } catch (err) {
     return next(err);
@@ -89,8 +104,13 @@ router.get('/about', async (req, res, next) => {
 
 router.get('/product', async (req, res, next) => {
   try {
-    const heroes = await productHeroService.listAll();
-    const hero = heroes[0] || defaultProductHero;
+    let heroes = [];
+    try {
+      heroes = await productHeroService.listAll();
+    } catch (err) {
+      if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
+    }
+    const hero = heroes && heroes[0] ? heroes[0] : defaultProductHero;
     return res.render('public/product', { hero });
   } catch (err) {
     return next(err);
@@ -99,8 +119,13 @@ router.get('/product', async (req, res, next) => {
 
 router.get('/passport', async (req, res, next) => {
   try {
-    const heroes = await passportHeroService.listAll();
-    const hero = heroes[0] || defaultPassportHero;
+    let heroes = [];
+    try {
+      heroes = await passportHeroService.listAll();
+    } catch (err) {
+      if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
+    }
+    const hero = heroes && heroes[0] ? heroes[0] : defaultPassportHero;
 
     const batchNo = req.query.batchNo || '';
     const results = batchNo ? await traceabilityService.lookupByBatchNo({ batchNo }) : [];
