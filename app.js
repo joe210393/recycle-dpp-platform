@@ -15,8 +15,19 @@ function createApp() {
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
 
-  // Allows HTML forms to submit PUT/PATCH/DELETE via hidden `_method` field.
-  app.use(methodOverride('_method'));
+  // HTML forms use POST + hidden `_method` for PUT/DELETE. Passing the string
+  // `'_method'` to method-override only checks the *query string*, not the body
+  // (see method-override createQueryGetter). Use a body-aware getter instead.
+  app.use(
+    methodOverride((req) => {
+      if (req.body && typeof req.body === 'object' && req.body._method) {
+        const m = req.body._method;
+        delete req.body._method;
+        return m;
+      }
+      return undefined;
+    })
+  );
 
   // Browser default request.
   app.get('/favicon.ico', (req, res) => {
