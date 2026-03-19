@@ -2,7 +2,7 @@ const { createAdminCrudController } = require('./crudControllerFactory');
 const { recyclerService } = require('../../services/recyclerService');
 
 const listFields = [
-  { key: 'id', label: 'ID' },
+  { key: 'id', label: '編號' },
   { key: 'name', label: '廠商名稱' },
   { key: 'code', label: '廠商代碼' },
   { key: 'tax_id', label: '統編' },
@@ -10,9 +10,8 @@ const listFields = [
   { key: 'created_at', label: '建立時間' },
 ];
 
-const formFields = [
+const baseFormFields = [
   { key: 'name', label: '廠商名稱', required: true },
-  { key: 'code', label: '廠商代碼', required: true },
   { key: 'tax_id', label: '統編' },
   { key: 'contact_person', label: '聯絡人' },
   { key: 'phone', label: '電話' },
@@ -33,6 +32,13 @@ const formFields = [
     ],
   },
 ];
+
+async function formFields(req, record) {
+  const codeField = record && record.code
+    ? [{ key: 'code', label: '廠商代碼（系統產生）', readonly: true, helpText: '建立時由系統自動給予，建立後不可修改。' }]
+    : [];
+  return [...codeField, ...baseFormFields];
+}
 
 module.exports = createAdminCrudController({
   resourceSlug: 'recyclers',
