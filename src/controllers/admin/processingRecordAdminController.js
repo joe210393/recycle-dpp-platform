@@ -2,7 +2,7 @@ const { createAdminCrudController } = require('./crudControllerFactory');
 const { processingRecordService } = require('../../services/processingRecordService');
 
 const listFields = [
-  { key: 'id', label: 'ID' },
+  { key: 'id', label: '編號' },
   { key: 'process_no', label: '處理單號' },
   { key: 'recycled_batch_id', label: '來源回收批次 ID' },
   { key: 'process_method', label: '處理方式' },
@@ -22,13 +22,26 @@ async function getFormFields(req, record) {
     recycledBatchOptions.push({ value: '', label: '請先建立回收批次' });
   }
 
+  const processNoField =
+    record && record.process_no
+      ? [
+          {
+            key: 'process_no',
+            label: '處理單號（系統產生）',
+            readonly: true,
+            helpText: '建立時由系統自動給予，建立後不可修改。',
+          },
+        ]
+      : [];
+
   return [
-    { key: 'process_no', label: '處理單號', required: true },
+    ...processNoField,
     {
       key: 'recycled_batch_id',
       label: '來源回收批次',
       type: 'select',
       options: recycledBatchOptions,
+      required: true,
     },
     { key: 'process_method', label: '處理方式' },
     { key: 'process_date', label: '處理日期', type: 'date' },
