@@ -44,7 +44,12 @@ async function getFormFields(req, record) {
       required: true,
     },
     { key: 'process_method', label: '處理方式' },
-    { key: 'process_date', label: '處理日期', type: 'date' },
+    {
+      key: 'process_date',
+      label: '處理日期時間',
+      type: 'datetime-local',
+      helpText: '時間以台灣時間（GMT+8）顯示與儲存。',
+    },
     { key: 'result_note', label: '處理結果備註', type: 'textarea' },
     {
       key: 'status',

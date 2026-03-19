@@ -1,3 +1,51 @@
+<% 
+  // MySQL DATE/DATETIME：配合 dateStrings 為字串；若仍為 JS Date，依 Asia/Taipei 格式化給表單
+  function formatDateInput(val) {
+    if (val == null || val === '') return '';
+    if (typeof val === 'string') {
+      var m = String(val).match(/^(\d{4}-\d{2}-\d{2})/);
+      return m ? m[1] : '';
+    }
+    if (Object.prototype.toString.call(val) === '[object Date]' && !isNaN(val.getTime())) {
+      var parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(val);
+      var y = parts.find(function (p) { return p.type === 'year'; }).value;
+      var mo = parts.find(function (p) { return p.type === 'month'; }).value;
+      var d = parts.find(function (p) { return p.type === 'day'; }).value;
+      return y + '-' + mo + '-' + d;
+    }
+    return '';
+  }
+  function formatDateTimeLocalInput(val) {
+    if (val == null || val === '') return '';
+    if (typeof val === 'string') {
+      var s = String(val).trim();
+      var m = s.match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})(?::(\d{2}))?/);
+      if (m) {
+        return m[1] + 'T' + m[2];
+      }
+      m = s.match(/^(\d{4}-\d{2}-\d{2})$/);
+      return m ? m[1] + 'T00:00' : '';
+    }
+    if (Object.prototype.toString.call(val) === '[object Date]' && !isNaN(val.getTime())) {
+      var parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Taipei',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      }).formatToParts(val);
+      var y = parts.find(function (p) { return p.type === 'year'; }).value;
+      var mo = parts.find(function (p) { return p.type === 'month'; }).value;
+      var d = parts.find(function (p) { return p.type === 'day'; }).value;
+      var h = parts.find(function (p) { return p.type === 'hour'; }).value;
+      var min = parts.find(function (p) { return p.type === 'minute'; }).value;
+      return y + '-' + mo + '-' + d + 'T' + h + ':' + min;
+    }
+    return '';
+  }
+%>
 <h1><%= title %></h1>
 
 <form
@@ -22,19 +70,31 @@
             <div style="color:#666; font-size: 12px; margin-bottom: 4px;"><%= field.helpText %></div>
           <% } %>
 
-          <% const value = (record && record[field.key] !== undefined && record[field.key] !== null) ? record[field.key] : ''; %>
-          <% const displayValue = (typeof value === 'object' ? JSON.stringify(value, null, 2) : value); %>
+          <% const rawVal = (record && record[field.key] !== undefined && record[field.key] !== null) ? record[field.key] : ''; %>
+          <% const isDateObj = Object.prototype.toString.call(rawVal) === '[object Date]' && !isNaN(rawVal.getTime()); %>
+          <% let displayValue; %>
+          <% if (typeof rawVal === 'object' && rawVal !== null && !isDateObj) { %>
+            <% displayValue = JSON.stringify(rawVal, null, 2); %>
+          <% } else if (isDateObj) { %>
+            <% displayValue = field.type === 'datetime-local' ? formatDateTimeLocalInput(rawVal) : formatDateInput(rawVal); %>
+          <% } else { %>
+            <% displayValue = rawVal; %>
+          <% } %>
+          <% let inputVal = rawVal; %>
+          <% if (field.type === 'date') { inputVal = formatDateInput(rawVal); } %>
+          <% if (field.type === 'datetime-local') { inputVal = formatDateTimeLocalInput(rawVal); } %>
+          <% if (field.type !== 'date' && field.type !== 'datetime-local' && isDateObj) { inputVal = formatDateInput(rawVal); } %>
 
           <% if (field.type === 'textarea') { %>
             <textarea name="<%= field.key %>" rows="5" style="width: 100%;" <%= field.readonly ? 'readonly' : '' %>><%= displayValue %></textarea>
           <% } else if (field.type === 'checkbox') { %>
             <input type="hidden" name="<%= field.key %>" value="0" />
-            <input type="checkbox" name="<%= field.key %>" value="1" <%= String(value) === '1' ? 'checked' : '' %> <%= field.readonly ? 'disabled' : '' %> />
+            <input type="checkbox" name="<%= field.key %>" value="1" <%= String(rawVal) === '1' ? 'checked' : '' %> <%= field.readonly ? 'disabled' : '' %> />
           <% } else if (field.type === 'select') { %>
             <div style="display:flex; gap:8px; align-items:center;">
               <select name="<%= field.key %>" <%= field.required ? 'required' : '' %> <%= field.readonly ? 'disabled' : '' %> style="flex:1;">
                 <% for (const opt of field.options || []) { %>
-                  <option value="<%= opt.value %>" <%= String(value) === String(opt.value) ? 'selected' : '' %>>
+                  <option value="<%= opt.value %>" <%= String(rawVal) === String(opt.value) ? 'selected' : '' %>>
                     <%= opt.label %>
                   </option>
                 <% } %>
@@ -50,7 +110,7 @@
             <input
               type="<%= field.inputType || field.type || 'text' %>"
               name="<%= field.key %>"
-              value="<%= value %>"
+              value="<%= inputVal %>"
               <%= field.required ? 'required' : '' %>
               <%= field.readonly ? 'readonly' : '' %>
               style="width: 100%;"

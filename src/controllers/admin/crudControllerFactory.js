@@ -19,6 +19,12 @@ function createAdminCrudController({
       if (Array.isArray(val)) {
         val = val.length ? val[val.length - 1] : '';
       }
+      // <input type="datetime-local"> → MySQL DATETIME
+      if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(val)) {
+        const [datePart, timePart] = val.split('T');
+        const tp = timePart.length === 5 ? `${timePart}:00` : timePart;
+        val = `${datePart} ${tp}`.slice(0, 19);
+      }
       if (val === '') {
         out[k] = null;
       } else {
