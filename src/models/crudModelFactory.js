@@ -36,6 +36,9 @@ function buildCrudModel({ table, primaryKey = 'id', columns = [] }) {
   async function create(data) {
     const pool = await getPool();
     const picked = pickColumns(data);
+    // Let DB defaults / triggers own timestamps; never INSERT literal timestamps from forms.
+    delete picked.created_at;
+    delete picked.updated_at;
     const cols = Object.keys(picked);
     if (cols.length === 0) throw new Error(`No columns provided for insert into ${table}`);
 
@@ -49,6 +52,8 @@ function buildCrudModel({ table, primaryKey = 'id', columns = [] }) {
   async function update(id, data) {
     const pool = await getPool();
     const picked = pickColumns(data);
+    delete picked.created_at;
+    delete picked.updated_at;
     const cols = Object.keys(picked);
     if (cols.length === 0) throw new Error(`No columns provided for update into ${table}`);
 

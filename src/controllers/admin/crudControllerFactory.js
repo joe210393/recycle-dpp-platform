@@ -12,10 +12,17 @@ function createAdminCrudController({
     // (e.g. DATE columns reject '' with "Incorrect date value")
     const out = {};
     for (const [k, v] of Object.entries(data || {})) {
-      if (v === '') {
+      let val = v;
+      // Duplicate field names (e.g. hidden input "0" + checkbox "1" for public_visible)
+      // become an array under Express body-parser + qs; mysql2 then mis-binds placeholders
+      // and MySQL may report "Column count doesn't match value count".
+      if (Array.isArray(val)) {
+        val = val.length ? val[val.length - 1] : '';
+      }
+      if (val === '') {
         out[k] = null;
       } else {
-        out[k] = v;
+        out[k] = val;
       }
     }
     return out;
