@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品護照查詢｜SENWEI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+  </head>
+  <body>
+    <header class="header">
+      <div class="container nav">
+        <a class="brand" href="/">
+          <img src="/assets/logo.jpg" alt="SENWEI logo">
+          <span class="brand-name">SENWEI</span>
+        </a>
+        <nav class="nav-links">
+          <a href="/" data-nav>首頁</a>
+          <a href="/about" data-nav>關於我們</a>
+          <a href="/product" data-nav>商品頁</a>
+          <a href="/passport" data-nav>商品護照</a>
+          <a href="/admin" data-nav>登入</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="page-hero">
+        <div class="container grid-2">
+          <div>
+            <span class="eyebrow"><%= hero.eyebrow %></span>
+            <h1><%- hero.title %></h1>
+            <p><%= hero.description %></p>
+          </div>
+          <div class="card">
+            <img src="<%= hero.hero_image_path %>" alt="商品護照查詢示意圖">
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container grid-2">
+          <div class="form-card">
+            <form id="passportQueryForm" class="form-grid" method="GET" action="/passport">
+              <div class="form-row">
+                <label for="batchNo">商品批次號</label>
+                <input
+                  id="batchNo"
+                  name="batchNo"
+                  type="text"
+                  value="<%= batchNo || '' %>"
+                  placeholder="例如：SNW-2026-001">
+              </div>
+              <button class="btn btn-primary" type="submit">查詢商品護照</button>
+            </form>
+            <div
+              id="passportResult"
+              class="result-card <%= results && results.length ? 'show' : '' %>"
+              aria-live="polite">
+              <% if (results && results.length) { const r = results[0]; %>
+                <div class="kv">
+                  <strong>品牌</strong><span>SENWEI</span>
+                  <strong>商品</strong><span><%= r.product_name %></span>
+                  <strong>商品批次</strong><span><%= r.batch_no %></span>
+                  <strong>護照代碼</strong><span><%= r.passport_code %></span>
+                  <strong>護照摘要</strong><span>可追溯回收來源、公開檢測摘要與文件資訊（依後台資料）。</span>
+                  <strong>查詢狀態</strong><span>已找到對應商品護照</span>
+                </div>
+                <div style="margin-top: 16px;">
+                  <a class="btn btn-secondary" href="/passports/<%= r.passport_code %>?view=consumer">查看商品護照詳情</a>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <span class="eyebrow">查詢後可顯示</span>
+            <h2 class="section-title" style="font-size:2.2rem; margin-top: 16px;">前台可見的商品護照內容</h2>
+            <div class="feature-list">
+              <li>商品名稱與商品批次</li>
+              <li>銀髮友善與環境友善摘要</li>
+              <li>來源與檢測報告摘要</li>
+              <li>未來可延伸的 QR Code / DPP 顯示入口</li>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div>
+          <div class="tagline">SENWEI</div>
+          <small>銀髮友善護膚品牌｜環境友善保養理念</small>
+        </div>
+        <small>網站製作：來就補多媒體行銷</small>
+      </div>
+    </footer>
+  </body>
+</html>
+

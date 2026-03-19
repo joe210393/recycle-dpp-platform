@@ -1,0 +1,43 @@
+<h1><%= title %></h1>
+
+<div style="margin-bottom: 12px;">
+  <a href="/admin/<%= resourceSlug %>/new">新增</a>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <% for (const f of listFields) { %>
+        <th><%= f.label === 'ID' ? '編號' : f.label %></th>
+      <% } %>
+      <th class="actions">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if (!rows || rows.length === 0) { %>
+      <tr>
+        <td colspan="<%= listFields.length + 1 %>">目前沒有資料。</td>
+      </tr>
+    <% } %>
+
+    <% for (const row of (rows || [])) { %>
+      <tr>
+        <% for (const f of listFields) { %>
+          <td><%= row[f.key] === null || row[f.key] === undefined ? '' : row[f.key] %></td>
+        <% } %>
+        <td class="actions">
+          <a href="/admin/<%= resourceSlug %>/<%= row.id %>/edit">編輯</a>
+          <form method="POST" action="/admin/<%= resourceSlug %>/<%= row.id %>?_method=DELETE" onsubmit="return confirm('確定要刪除嗎？')">
+            <input type="hidden" name="_method" value="DELETE" />
+            <button type="submit">刪除</button>
+          </form>
+        </td>
+      </tr>
+    <% } %>
+  </tbody>
+</table>
+
+<div style="margin-top: 12px;">
+  第 <%= page %> 頁（每頁 <%= limit %> 筆）
+</div>
+

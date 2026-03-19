@@ -1,0 +1,174 @@
+<h1>後台首頁</h1>
+<p>第一版目前已完成資料庫建表與 CRUD 骨架；此頁先顯示簡單狀態。</p>
+
+<div style="display:flex; gap:12px; flex-wrap: wrap;">
+  <div style="border:1px solid #ddd; border-radius:6px; padding:12px; min-width: 180px;">
+    <div style="font-weight:600;">回收廠商數量</div>
+    <div style="font-size:20px;"><%= counts.recyclers || 0 %></div>
+  </div>
+  <div style="border:1px solid #ddd; border-radius:6px; padding:12px; min-width: 180px;">
+    <div style="font-weight:600;">回收批次數量</div>
+    <div style="font-size:20px;"><%= counts.recycledBatches || 0 %></div>
+  </div>
+  <div style="border:1px solid #ddd; border-radius:6px; padding:12px; min-width: 180px;">
+    <div style="font-weight:600;">材料批次數量</div>
+    <div style="font-size:20px;"><%= counts.materialBatches || 0 %></div>
+  </div>
+  <div style="border:1px solid #ddd; border-radius:6px; padding:12px; min-width: 180px;">
+    <div style="font-weight:600;">商品數量</div>
+    <div style="font-size:20px;"><%= counts.products || 0 %></div>
+  </div>
+  <div style="border:1px solid #ddd; border-radius:6px; padding:12px; min-width: 180px;">
+    <div style="font-weight:600;">商品批次數量</div>
+    <div style="font-size:20px;"><%= counts.productBatches || 0 %></div>
+  </div>
+  <div style="border:1px solid #ddd; border-radius:6px; padding:12px; min-width: 180px;">
+    <div style="font-weight:600;">商品護照數量</div>
+    <div style="font-size:20px;"><%= counts.productPassports || 0 %></div>
+  </div>
+</div>
+
+<hr />
+
+<style>
+  .flow-diagram-wrap { margin-top: 8px; }
+  .flow-diagram {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .flow-step {
+    min-width: 220px;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    padding: 0;
+    background: #fff;
+  }
+  .flow-step .step-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 800;
+  }
+  .flow-num {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #f2f2f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    color: #666;
+    font-weight: 900;
+    padding-top: 34px;
+  }
+  .flow-step details {
+    margin: 0;
+    padding: 0;
+  }
+  .flow-step details > summary {
+    list-style: none;
+  }
+  .flow-step details[open] .step-summary { background: #fafafa; }
+</style>
+
+<h2>整條路線圖（五大區塊，可展開）</h2>
+<p style="color:#666;">下面用水平五步驟呈現，點每一塊可展開管理項目。</p>
+
+<div class="flow-diagram-wrap">
+  <div class="flow-diagram">
+    <div class="flow-step">
+      <details open>
+        <summary class="step-summary">
+          <span class="flow-num">1</span>
+          回收
+        </summary>
+        <div class="flow-links">
+          <a href="/admin/recyclers">回收廠商</a>
+          <a href="/admin/recycled-items">回收物類型</a>
+          <a href="/admin/recycled-batches">回收批次</a>
+          <a href="/admin/processing-records">處理紀錄</a>
+        </div>
+      </details>
+    </div>
+
+    <div class="flow-arrow">&gt;</div>
+
+    <div class="flow-step">
+      <details>
+        <summary class="step-summary">
+          <span class="flow-num">2</span>
+          材料
+        </summary>
+        <div class="flow-links">
+          <a href="/admin/processing-records">處理紀錄</a>
+          <a href="/admin/materials">材料主檔</a>
+          <a href="/admin/material-batches">材料批次</a>
+        </div>
+      </details>
+    </div>
+
+    <div class="flow-arrow">&gt;</div>
+
+    <div class="flow-step">
+      <details>
+        <summary class="step-summary">
+          <span class="flow-num">3</span>
+          商品
+        </summary>
+        <div class="flow-links">
+          <a href="/admin/products">商品</a>
+          <a href="/admin/product-versions">商品版本</a>
+          <a href="/admin/product-bom">商品 BOM</a>
+          <a href="/admin/product-batches">商品批次</a>
+          <a href="/admin/product-batch-material-batches">商品用料鏈結</a>
+        </div>
+      </details>
+    </div>
+
+    <div class="flow-arrow">&gt;</div>
+
+    <div class="flow-step">
+      <details>
+        <summary class="step-summary">
+          <span class="flow-num">4</span>
+          護照
+        </summary>
+        <div class="flow-links">
+          <a href="/admin/documents">文件附件</a>
+          <a href="/admin/product-passports">商品護照</a>
+          <a href="/admin/passport-views">護照顯示設定</a>
+        </div>
+      </details>
+    </div>
+
+    <div class="flow-arrow">&gt;</div>
+
+    <div class="flow-step">
+      <details>
+        <summary class="step-summary">
+          <span class="flow-num">5</span>
+          DPP 匯出
+        </summary>
+        <div class="flow-links">
+          <a href="/admin/dpp-exports">DPP 匯出</a>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+

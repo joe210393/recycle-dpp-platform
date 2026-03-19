@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SENWEI｜首頁</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+      /* 能量運作流程（自訂樣式；其餘用 senwei_site 的 css/styles.css 控制） */
+      .flow-wrap { margin-top: 26px; overflow-x: auto; }
+      .flow { min-width: 980px; display: flex; align-items: center; gap: 12px; }
+      .node { width: 170px; text-align: center; }
+      .node-circle {
+        width: 130px;
+        height: 130px;
+        border: 2px solid rgba(168, 175, 143, 0.55);
+        border-radius: 999px;
+        margin: 0 auto 10px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.7);
+        overflow: hidden;
+      }
+      .node-circle img { width: 100%; height: 100%; object-fit: cover; }
+      .node-icon { color: var(--sage-dark); font-size: 12px; }
+      .node-title { font-weight: 800; color: var(--heading); margin-bottom: 6px; }
+      .node-desc { color: var(--text); font-size: 13px; line-height: 1.5; }
+      .arrow { color: var(--sage-dark); font-weight: 900; font-size: 18px; }
+      @media (max-width: 900px) {
+        .flow { min-width: 820px; }
+      }
+    </style>
+  </head>
+  <body>
+    <% 
+      const safeHero = typeof hero !== 'undefined' && hero ? hero : {
+        eyebrow: '銀髮友善 × 環境友善',
+        title: '給歲月溫柔一點，<br>也給地球更輕一點。',
+        description: 'SENWEI 專為熟齡與銀髮肌膚打造溫和護膚體驗，從觸感、使用方式到成分故事，都以舒適、安心與可追溯為核心，讓每日保養回到簡單、自在與被照顧的感受。',
+        primary_button_text: '查看商品系列',
+        primary_button_url: '/product',
+        secondary_button_text: '查詢商品護照',
+        secondary_button_url: '/passport',
+        hero_image_path: '/assets/hero-illustration.svg',
+        info1_title: '低刺激設計',
+        info1_body: '細緻膚感與易開易握包裝，適合熟齡日常護理。',
+        info2_title: '透明可追溯',
+        info2_body: '提供商品護照查詢，公開來源與檢測摘要。',
+        info3_title: '永續思維',
+        info3_body: '以環境友善的原料觀念，傳遞循環保養的價值。'
+      };
+      const safeFlow = (typeof flow !== 'undefined' && flow && flow.length)
+        ? flow
+        : [
+          { title: '接近偵測', description: '偵測裝置接近並啟動流程。', icon_path: '' },
+          { title: '同步傳輸', description: '將資料同步傳送到系統。', icon_path: '' },
+          { title: '儲能導入', description: '寫入並整合至追溯資料。', icon_path: '' },
+          { title: '觸發更新', description: '觸發狀態與內容更新。', icon_path: '' },
+          { title: '畫面完成', description: '完成前台可視化呈現。', icon_path: '' }
+        ];
+      const heroImage = safeHero.hero_image_path ? safeHero.hero_image_path : 'assets/hero-illustration.svg';
+    %>
+    <header class="header">
+      <div class="container nav">
+        <a class="brand" href="/">
+          <img src="/assets/logo.jpg" alt="SENWEI logo">
+          <span class="brand-name">SENWEI</span>
+        </a>
+        <nav class="nav-links">
+          <a href="/" data-nav>首頁</a>
+          <a href="/about" data-nav>關於我們</a>
+          <a href="/product" data-nav>商品頁</a>
+          <a href="/passport" data-nav>商品護照</a>
+          <a href="/admin" data-nav>登入</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow"><%= safeHero.eyebrow || '' %></span>
+          <h1><%- safeHero.title || '' %></h1>
+          <p><%= safeHero.description || '' %></p>
+          <div class="hero-actions">
+            <% if (safeHero.primary_button_text && safeHero.primary_button_url) { %>
+              <a class="btn btn-primary" href="<%= safeHero.primary_button_url %>"><%= safeHero.primary_button_text %></a>
+            <% } %>
+            <% if (safeHero.secondary_button_text && safeHero.secondary_button_url) { %>
+              <a class="btn btn-secondary" href="<%= safeHero.secondary_button_url %>"><%= safeHero.secondary_button_text %></a>
+            <% } %>
+          </div>
+
+          <div class="info-strip">
+            <div class="info-item">
+              <strong><%= safeHero.info1_title || '' %></strong>
+              <%= safeHero.info1_body || '' %>
+            </div>
+            <div class="info-item">
+              <strong><%= safeHero.info2_title || '' %></strong>
+              <%= safeHero.info2_body || '' %>
+            </div>
+            <div class="info-item">
+              <strong><%= safeHero.info3_title || '' %></strong>
+              <%= safeHero.info3_body || '' %>
+            </div>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img src="<%= heroImage %>" alt="Hero image" />
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <span class="eyebrow">品牌理念</span>
+        <h2 class="section-title">從肌膚需求出發，延伸到生活與環境的溫柔選擇。</h2>
+        <p class="section-desc">
+          我們相信，真正適合長者的保養，不只是成分溫和，還包括閱讀清楚、操作順手、感受安心，以及每一次使用都能理解這份產品從哪裡來、為何而做。
+        </p>
+        <div class="card-grid" style="margin-top: 30px;">
+          <article class="card">
+            <h3>銀髮友善</h3>
+            <p>更重視乾燥、敏弱與脆弱肌膚的日常需求，也照顧到使用者的操作便利與閱讀體驗。</p>
+          </article>
+          <article class="card">
+            <h3>環境友善</h3>
+            <p>以循環與公開透明為品牌核心，讓產品不只照顧肌膚，也照顧土地與未來世代。</p>
+          </article>
+          <article class="card">
+            <h3>商品護照</h3>
+            <p>透過前台查詢頁面，能快速查看商品護照、批次資訊與檢測摘要，建立品牌信任。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section highlight">
+      <div class="container grid-2">
+        <div>
+          <span class="eyebrow">明星系列</span>
+          <h2 class="section-title">一支產品，承載一整套照顧熟齡肌膚的想法。</h2>
+          <p>
+            目前 SENWEI 以單一系列為核心，集中做好每一個細節：從質地、包裝、說明設計，到護照查詢介面，都以「好懂、好用、好安心」為目標。
+          </p>
+          <div class="badge-list">
+            <span class="badge">易讀標示</span>
+            <span class="badge">溫和修護</span>
+            <span class="badge">追溯透明</span>
+            <span class="badge">永續精神</span>
+          </div>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="/product">進入商品頁</a>
+          </div>
+        </div>
+        <div class="card">
+          <img src="/assets/product-illustration.svg" alt="SENWEI 商品形象圖">
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <span class="eyebrow">能量運作流程</span>
+        <h2>能量運作流程說明</h2>
+        <p>可在後台管理流程步驟的標題、說明與圖片。</p>
+        <div class="flow-wrap">
+          <div class="flow">
+            <% for (let i = 0; i < safeFlow.length; i++) { const step = safeFlow[i]; %>
+              <div class="node">
+                <div class="node-circle">
+                  <% if (step.icon_path) { %>
+                    <img src="<%= step.icon_path %>" alt="<%= step.title %>" />
+                  <% } else { %>
+                    <div class="node-icon">無圖示</div>
+                  <% } %>
+                </div>
+                <div class="node-title"><%= step.title %></div>
+                <div class="node-desc"><%= step.description || '' %></div>
+              </div>
+              <% if (i < safeFlow.length - 1) { %>
+                <div class="arrow">&gt;</div>
+              <% } %>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">
+        SENWEI｜首頁內容可於後台管理（Hero 區塊 / 流程區塊）
+      </div>
+    </footer>
+    <script src="/js/main.js"></script>
+  </body>
+</html>
+

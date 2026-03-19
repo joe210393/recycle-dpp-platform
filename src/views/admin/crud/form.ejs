@@ -1,0 +1,90 @@
+<h1><%= title %></h1>
+
+<form
+  method="POST"
+  action="<%= mode === 'edit' ? `/admin/${resourceSlug}/${record.id}` : `/admin/${resourceSlug}` %>">
+  <% if (mode === 'edit') { %>
+    <input type="hidden" name="_method" value="PUT" />
+  <% } %>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+    <% for (const field of formFields) { %>
+      <% const showKey = field.showWhenKey || ''; %>
+      <% const showValue = field.showWhenValue || ''; %>
+      <div
+        class="form-field"
+        data-show-when-key="<%= showKey %>"
+        data-show-when-value="<%= showValue %>"
+        style="<%= field.showWhenKey ? 'display:none;' : '' %>">
+        <label>
+          <div style="font-weight: 600; margin-bottom: 4px;"><%= field.label %></div>
+          <% if (field.helpText) { %>
+            <div style="color:#666; font-size: 12px; margin-bottom: 4px;"><%= field.helpText %></div>
+          <% } %>
+
+          <% const value = (record && record[field.key] !== undefined && record[field.key] !== null) ? record[field.key] : ''; %>
+          <% const displayValue = (typeof value === 'object' ? JSON.stringify(value, null, 2) : value); %>
+
+          <% if (field.type === 'textarea') { %>
+            <textarea name="<%= field.key %>" rows="5" style="width: 100%;" <%= field.readonly ? 'readonly' : '' %>><%= displayValue %></textarea>
+          <% } else if (field.type === 'checkbox') { %>
+            <input type="hidden" name="<%= field.key %>" value="0" />
+            <input type="checkbox" name="<%= field.key %>" value="1" <%= String(value) === '1' ? 'checked' : '' %> <%= field.readonly ? 'disabled' : '' %> />
+          <% } else if (field.type === 'select') { %>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <select name="<%= field.key %>" <%= field.required ? 'required' : '' %> <%= field.readonly ? 'disabled' : '' %> style="flex:1;">
+                <% for (const opt of field.options || []) { %>
+                  <option value="<%= opt.value %>" <%= String(value) === String(opt.value) ? 'selected' : '' %>>
+                    <%= opt.label %>
+                  </option>
+                <% } %>
+              </select>
+              <% if (field.helpLink && field.showAddButton !== false) { %>
+                <a href="<%= field.helpLink.href %>" target="_blank" rel="noreferrer"
+                   style="white-space:nowrap; text-decoration:none; border:1px solid #ddd; border-radius:8px; padding:6px 10px; background:#fafafa;">
+                  ＋新增
+                </a>
+              <% } %>
+            </div>
+          <% } else { %>
+            <input
+              type="<%= field.inputType || field.type || 'text' %>"
+              name="<%= field.key %>"
+              value="<%= value %>"
+              <%= field.required ? 'required' : '' %>
+              <%= field.readonly ? 'readonly' : '' %>
+              style="width: 100%;"
+            />
+          <% } %>
+        </label>
+      </div>
+    <% } %>
+  </div>
+
+  <script>
+    (function () {
+      function toggleFields() {
+        var fields = document.querySelectorAll('.form-field[data-show-when-key]');
+        fields.forEach(function (wrap) {
+          var key = wrap.getAttribute('data-show-when-key');
+          var val = wrap.getAttribute('data-show-when-value');
+          if (!key) return;
+          var controller = document.querySelector('[name="' + key + '"]');
+          if (!controller) return;
+          var current = controller.type === 'checkbox' ? (controller.checked ? '1' : '0') : controller.value;
+          wrap.style.display = (String(current) === String(val)) ? '' : 'none';
+        });
+      }
+      document.addEventListener('change', function (e) {
+        if (e.target && e.target.name) toggleFields();
+      });
+      toggleFields();
+    })();
+  </script>
+
+  <div style="margin-top: 16px;">
+    <button type="submit"><%= mode === 'edit' ? '儲存' : '建立' %></button>
+    <a href="/admin/<%= resourceSlug %>" style="margin-left: 12px;">返回</a>
+  </div>
+</form>
+

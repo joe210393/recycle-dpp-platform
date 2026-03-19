@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>批次查詢</title>
+    <style>
+      body { font-family: Arial, Helvetica, sans-serif; margin: 16px; }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+      th { background: #f6f6f6; }
+    </style>
+  </head>
+  <body>
+    <p><a href="/">回首頁</a></p>
+    <h1>批次查詢</h1>
+
+    <form method="POST" action="/lookup/batch" style="margin: 12px 0;">
+      <div style="display:flex; gap:12px; align-items:flex-end;">
+        <div>
+          <label>輸入商品批次號</label>
+          <input type="text" name="batch_no" value="<%= batchNo %>" style="width: 260px;" />
+        </div>
+        <div>
+          <label>顯示版本</label>
+          <select name="view">
+            <option value="consumer" <%= viewType === 'consumer' ? 'selected' : '' %>>消費者</option>
+            <option value="b2b" <%= viewType === 'b2b' ? 'selected' : '' %>>通路/夥伴</option>
+            <option value="audit" <%= viewType === 'audit' ? 'selected' : '' %>>稽核</option>
+          </select>
+        </div>
+        <button type="submit">查詢</button>
+      </div>
+    </form>
+
+    <% if (!results || results.length === 0) { %>
+      <p class="muted" style="color:#666;">尚未查到結果。</p>
+    <% } else { %>
+      <table>
+        <thead>
+          <tr>
+            <th>商品</th>
+            <th>商品版本</th>
+            <th>商品批次號</th>
+            <th>製造日期</th>
+            <th>有效日期</th>
+            <th>護照</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const r of results) { %>
+            <tr>
+              <td><%= r.product_name %></td>
+              <td><%= r.version_no %></td>
+              <td><%= r.batch_no %></td>
+              <td><%= r.manufacture_date || '' %></td>
+              <td><%= r.expiry_date || '' %></td>
+              <td>
+                <a href="/passports/<%= r.passport_code %>?view=<%= viewType %>">查看護照</a>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    <% } %>
+  </body>
+</html>
+

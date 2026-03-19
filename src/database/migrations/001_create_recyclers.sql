@@ -1,0 +1,19 @@
+CREATE TABLE IF NOT EXISTS recyclers (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  code VARCHAR(100) NOT NULL UNIQUE,
+  tax_id VARCHAR(50) NULL,
+  contact_person VARCHAR(100) NULL,
+  phone VARCHAR(50) NULL,
+  email VARCHAR(255) NULL,
+  address VARCHAR(255) NULL,
+  website VARCHAR(255) NULL,
+  certificate_no VARCHAR(100) NULL,
+  certificate_file VARCHAR(255) NULL,
+  public_note TEXT NULL,
+  internal_note TEXT NULL,
+  status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= detail.product.name %> - 商品詳情</title>
+    <style>
+      body { font-family: Arial, Helvetica, sans-serif; margin: 16px; }
+      .card { border: 1px solid #ddd; border-radius: 6px; padding: 12px; margin-bottom: 12px; }
+      img { max-height: 140px; }
+      ul { padding-left: 18px; }
+      li { margin: 6px 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="/products">返回商品列表</a></p>
+
+    <div class="card">
+      <h1 style="margin-top:0;"><%= detail.product.name %></h1>
+      <p><strong>分類：</strong><%= detail.product.category || '-' %></p>
+      <p><strong>版本：</strong><%= detail.version ? (detail.version.version_no + (detail.version.version_name ? ' ' + detail.version.version_name : '')) : '-' %></p>
+
+      <% if (detail.product.main_image) { %>
+        <div style="margin: 10px 0;">
+          <img src="<%= detail.product.main_image %>" alt="<%= detail.product.name %>" />
+        </div>
+      <% } %>
+
+      <% if (detail.product.short_description) { %>
+        <p><strong>商品簡述：</strong><%= detail.product.short_description %></p>
+      <% } %>
+      <% if (detail.product.usage_instruction) { %>
+        <p><strong>使用方式：</strong><%= detail.product.usage_instruction %></p>
+      <% } %>
+      <% if (detail.product.caution) { %>
+        <p><strong>注意事項：</strong><%= detail.product.caution %></p>
+      <% } %>
+      <% if (detail.product.specification) { %>
+        <p><strong>規格：</strong><%= detail.product.specification %></p>
+      <% } %>
+    </div>
+
+    <div class="card">
+      <h2>材料（BOM 組成）</h2>
+      <% if (!detail.bomItems || detail.bomItems.length === 0) { %>
+        <p>目前此版本尚未設定公開材料。</p>
+      <% } else { %>
+        <ul>
+          <% for (const item of detail.bomItems) { %>
+            <li>
+              <div><strong><%= item.material_name %></strong>（角色：<%= item.material_role || '-' %>）</div>
+              <% if (item.material_public_description) { %>
+                <div style="color:#666;"><%= item.material_public_description %></div>
+              <% } %>
+            </li>
+          <% } %>
+        </ul>
+      <% } %>
+    </div>
+
+    <div class="card">
+      <h2>商品護照 / 追溯查詢</h2>
+      <p>請到「批次查詢」輸入商品批次號，即可查看該批次的商品護照。</p>
+      <p><a href="/lookup/batch">前往批次查詢</a></p>
+    </div>
+  </body>
+</html>
+

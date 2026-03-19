@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>商品列表</title>
+    <style>
+      body { font-family: Arial, Helvetica, sans-serif; margin: 16px; }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+      th { background: #f6f6f6; }
+      img { max-height: 48px; }
+    </style>
+  </head>
+  <body>
+    <h1>商品列表</h1>
+
+    <% if (!products || products.length === 0) { %>
+      <p>目前沒有公開商品。</p>
+    <% } else { %>
+      <table>
+        <thead>
+          <tr>
+            <th>編號</th>
+            <th>商品名稱</th>
+            <th>分類</th>
+            <th>主圖</th>
+            <th>Slug</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const p of products) { %>
+            <tr>
+              <td><%= p.id %></td>
+              <td>
+                <div style="font-weight: 600;"><%= p.name %></div>
+                <% if (p.short_description) { %>
+                  <div style="color:#666;"><%= p.short_description %></div>
+                <% } %>
+              </td>
+              <td><%= p.category || '' %></td>
+              <td>
+                <% if (p.main_image) { %>
+                  <img src="<%= p.main_image %>" alt="<%= p.name %>" />
+                <% } else { %>
+                  -
+                <% } %>
+              </td>
+              <td><%= p.slug %></td>
+              <td>
+                <a href="/products/<%= p.slug %>">查看詳情</a>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    <% } %>
+
+    <p style="margin-top: 12px;"><a href="/">回首頁</a></p>
+  </body>
+</html>
+

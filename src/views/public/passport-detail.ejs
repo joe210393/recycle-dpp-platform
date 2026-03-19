@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>商品護照 - <%= data.passport.passport_code %></title>
+    <style>
+      body { font-family: Arial, Helvetica, sans-serif; margin: 16px; }
+      .card { border: 1px solid #ddd; border-radius: 6px; padding: 12px; margin-bottom: 12px; }
+      img { max-height: 180px; }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+      th { background: #f6f6f6; }
+      .muted { color:#666; }
+    </style>
+  </head>
+  <body>
+    <p><a href="/">回首頁</a> / <a href="/products">商品列表</a></p>
+
+    <% const show = (data.config && data.config.show) ? data.config.show : {}; %>
+    <% const traceShow = show.recyclersAndTrace || {}; %>
+
+    <div class="card">
+      <% if (show.product && show.product.name) { %>
+        <h1 style="margin-top:0;"><%= data.passport.product_name %></h1>
+      <% } %>
+
+      <p class="muted">護照代碼：<%= data.passport.passport_code %></p>
+      <p><strong>分類：</strong><%= data.passport.product_category || '-' %></p>
+
+      <% if (show.product && show.product.productVersion) { %>
+        <p><strong>商品版本：</strong><%= data.passport.version_no %><% if (data.passport.version_name) { %>（<%= data.passport.version_name %>）<% } %></p>
+      <% } %>
+
+      <% if (show.product && show.product.productBatchNo) { %>
+        <p><strong>商品批次：</strong><%= data.passport.batch_no %></p>
+      <% } %>
+
+      <% if (show.product && show.product.mainImage && data.passport.product_main_image) { %>
+        <div style="margin:10px 0;">
+          <img src="<%= data.passport.product_main_image %>" alt="<%= data.passport.product_name %>" />
+        </div>
+      <% } %>
+
+      <% if (show.product && show.product.shortDescription && data.passport.product_short_description) { %>
+        <p><strong>商品簡述：</strong><%= data.passport.product_short_description %></p>
+      <% } %>
+
+      <% if (show.product && show.product.usageInstruction && data.passport.usage_instruction) { %>
+        <p><strong>使用方式：</strong><%= data.passport.usage_instruction %></p>
+      <% } %>
+
+      <% if (show.product && show.product.caution && data.passport.caution) { %>
+        <p><strong>注意事項：</strong><%= data.passport.caution %></p>
+      <% } %>
+
+      <% if (show.product && show.product.specification && data.passport.specification) { %>
+        <p><strong>規格：</strong><%= data.passport.specification %></p>
+      <% } %>
+    </div>
+
+    <div class="card">
+      <h2>材料資訊</h2>
+
+      <% if (show.materials && show.materials.materialList) { %>
+        <% if (!data.materials || data.materials.length === 0) { %>
+          <p class="muted">此批次尚未設定材料。</p>
+        <% } else { %>
+          <table>
+            <thead>
+              <tr>
+                <th>材料</th>
+                <th>角色</th>
+                <th>材料批次</th>
+                <th>製成日期</th>
+                <th>有效日期</th>
+                <% if (show.testingAndReports && show.testingAndReports.testReportSummary) { %>
+                  <th>檢測報告摘要</th>
+                <% } %>
+              </tr>
+            </thead>
+            <tbody>
+              <% for (const m of data.materials) { %>
+                <tr>
+                  <td><%= m.material_name %></td>
+                  <td><%= m.material_role || '-' %></td>
+                  <td><%= m.material_batch_no %></td>
+                  <td><%= m.produced_date || '' %></td>
+                  <td><%= m.expiry_date || '' %></td>
+                  <% if (show.testingAndReports && show.testingAndReports.testReportSummary) { %>
+                    <td><%= m.test_report_summary || '' %></td>
+                  <% } %>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        <% } %>
+      <% } %>
+
+      <% if (show.documents && show.documents.showDocumentsList && data.documents && data.documents.length > 0) { %>
+        <h3 style="margin-top:16px;">文件列表</h3>
+        <ul>
+          <% for (const d of data.documents) { %>
+            <li>
+              <div><strong><%= d.title %></strong>（<%= d.document_type %>）</div>
+              <% if (d.file_path) { %>
+                <div class="muted"><a href="<%= d.file_path %>">下載 / 查看</a></div>
+              <% } %>
+            </li>
+          <% } %>
+        </ul>
+      <% } %>
+    </div>
+
+    <div class="card">
+      <h2>回收來源與處理資訊</h2>
+      <% if (!data.trace || data.trace.length === 0) { %>
+        <p class="muted">此批次無可追溯資料。</p>
+      <% } else { %>
+        <ul>
+          <% for (const t of data.trace) { %>
+            <li>
+              <% if (traceShow.recyclerName) { %>
+                <div><strong>回收廠商：</strong><%= t.recycler_name %></div>
+              <% } %>
+              <% if (traceShow.recyclerCertificateNo) { %>
+                <div><strong>回收證號：</strong><%= t.recycler_certificate_no || '-' %></div>
+              <% } %>
+              <% if (traceShow.recycledBatchTraceCode) { %>
+                <div><strong>追溯編號：</strong><%= t.recycled_trace_code || '-' %></div>
+              <% } %>
+              <% if (traceShow.traceUrl && t.recycled_trace_url) { %>
+                <div class="muted"><a href="<%= t.recycled_trace_url %>">追溯網站</a></div>
+              <% } %>
+              <% if (traceShow.sourceLocation) { %>
+                <div><strong>來源地：</strong><%= t.source_location || '-' %></div>
+              <% } %>
+              <% if (traceShow.processingProcessNo) { %>
+                <div><strong>處理單號：</strong><%= t.process_no || '-' %></div>
+              <% } %>
+              <% if (t.process_date) { %>
+                <div><strong>處理日期：</strong><%= t.process_date || '' %></div>
+              <% } %>
+              <% if (t.process_method) { %>
+                <div><strong>處理方式：</strong><%= t.process_method || '-' %></div>
+              <% } %>
+            </li>
+          <% } %>
+        </ul>
+      <% } %>
+    </div>
+
+    <div class="card">
+      <h2>QR Code</h2>
+      <% if (show.qrCode && data.passport.qr_code_path) { %>
+        <div>
+          <img src="<%= data.passport.qr_code_path %>" alt="QR Code" />
+        </div>
+      <% } else if (!show.qrCode) { %>
+        <p class="muted">此版本不顯示 QR Code。</p>
+      <% } else { %>
+        <p class="muted">尚未提供 QR Code 圖片。</p>
+      <% } %>
+    </div>
+  </body>
+</html>
+

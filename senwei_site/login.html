@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登入｜SENWEI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <img src="assets/logo.jpg" alt="SENWEI logo">
+        <span class="brand-name">SENWEI</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html" data-nav>首頁</a>
+        <a href="about.html" data-nav>關於我們</a>
+        <a href="product.html" data-nav>商品頁</a>
+        <a href="passport.html" data-nav>商品護照</a>
+        <a href="login.html" data-nav>登入</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="login-layout">
+    <section class="login-visual">
+      <div class="container" style="max-width: 560px;">
+        <span class="eyebrow">Welcome to SENWEI</span>
+        <h1 style="margin-bottom: 18px;">登入後台或會員入口，<br>延續透明照護體驗。</h1>
+        <p>
+          這一頁目前為展示版，可作為未來後台管理登入、會員查詢商品護照，或通路登入入口的前端基礎。
+        </p>
+        <div class="card" style="margin-top: 24px;">
+          <img src="assets/hero-illustration.svg" alt="SENWEI login 視覺圖">
+        </div>
+      </div>
+    </section>
+    <section class="login-panel">
+      <div class="form-card">
+        <span class="eyebrow">Login</span>
+        <h2 class="section-title" style="font-size: 2.5rem; margin-top: 16px;">SENWEI 登入</h2>
+        <form id="loginForm" class="form-grid">
+          <div class="form-row">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="your@email.com">
+          </div>
+          <div class="form-row">
+            <label for="password">密碼</label>
+            <input id="password" name="password" type="password" placeholder="請輸入密碼">
+          </div>
+          <button class="btn btn-primary" type="submit">登入</button>
+        </form>
+        <div id="loginMessage" class="result-card" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <div class="tagline">SENWEI</div>
+        <small>銀髮友善護膚品牌｜環境友善保養理念</small>
+      </div>
+      <small>網站製作：來就補多媒體行銷</small>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

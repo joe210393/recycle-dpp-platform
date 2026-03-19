@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS home_hero (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  eyebrow VARCHAR(255) NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT NULL,
+  primary_button_text VARCHAR(100) NULL,
+  primary_button_url VARCHAR(255) NULL,
+  secondary_button_text VARCHAR(100) NULL,
+  secondary_button_url VARCHAR(255) NULL,
+  hero_image_path VARCHAR(255) NULL,
+  info1_title VARCHAR(100) NULL,
+  info1_body VARCHAR(255) NULL,
+  info2_title VARCHAR(100) NULL,
+  info2_body VARCHAR(255) NULL,
+  info3_title VARCHAR(100) NULL,
+  info3_body VARCHAR(255) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
