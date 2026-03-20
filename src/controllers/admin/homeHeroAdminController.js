@@ -17,7 +17,7 @@ const formFields = [
   { key: 'primary_button_url', label: '主按鈕連結 URL' },
   { key: 'secondary_button_text', label: '次按鈕文字' },
   { key: 'secondary_button_url', label: '次按鈕連結 URL' },
-  { key: 'hero_image_path', label: '主視覺圖片路徑（/public 下或完整 URL）' },
+  { key: 'hero_image_path', label: '主視覺圖片（上傳檔或填網址/路徑）', type: 'image' },
   { key: 'info1_title', label: '重點一標題' },
   { key: 'info1_body', label: '重點一說明', type: 'textarea' },
   { key: 'info2_title', label: '重點二標題' },

@@ -11,7 +11,7 @@ const listFields = [
 const formFields = [
   { key: 'title', label: '步驟標題', required: true },
   { key: 'description', label: '步驟說明', type: 'textarea' },
-  { key: 'icon_path', label: '圖示圖片路徑（可空白）' },
+  { key: 'icon_path', label: '流程圖示（上傳檔或填網址/路徑，可空白）', type: 'image' },
   { key: 'sort_order', label: '顯示順序（數字越小越前面）', type: 'number' },
 ];
 
