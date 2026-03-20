@@ -55,11 +55,19 @@
   </div>
 <% } %>
 
+  <% 
+    // 含檔案欄位時用 POST /:id/update，不依賴 method-override（multipart 時 body._method 尚未解析）
+    const editFormAction = mode === 'edit'
+      ? (hasImageUpload
+          ? `/admin/${resourceSlug}/${record.id}/update`
+          : `/admin/${resourceSlug}/${record.id}?_method=PUT`)
+      : `/admin/${resourceSlug}`;
+  %>
 <form
   method="POST"
-  action="<%= mode === 'edit' ? `/admin/${resourceSlug}/${record.id}` : `/admin/${resourceSlug}` %>"
+  action="<%= editFormAction %>"
   <%= hasImageUpload ? 'enctype="multipart/form-data"' : '' %>>
-  <% if (mode === 'edit') { %>
+  <% if (mode === 'edit' && !hasImageUpload) { %>
     <input type="hidden" name="_method" value="PUT" />
   <% } %>
 

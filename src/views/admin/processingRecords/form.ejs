@@ -19,7 +19,7 @@
 
 <form
   method="POST"
-  action="<%= mode === 'edit' ? `/admin/${resourceSlug}/${record.id}` : `/admin/${resourceSlug}` %>">
+  action="<%= mode === 'edit' ? `/admin/${resourceSlug}/${record.id}?_method=PUT` : `/admin/${resourceSlug}` %>">
   <% if (mode === 'edit') { %>
     <input type="hidden" name="_method" value="PUT" />
   <% } %>

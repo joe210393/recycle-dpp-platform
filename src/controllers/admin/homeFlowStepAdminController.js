@@ -16,8 +16,9 @@ const formFields = [
 ];
 
 /** title NOT NULL；sort_order 空值經 sanitize 會變 NULL，需預設 */
-function preprocess(body) {
+function preprocess(body, req) {
   const b = preprocessEnsureNonEmpty(body, [{ key: 'title', label: '步驟標題' }]);
+  omitEmptyImagePathsOnPut(b, req, ['icon_path']);
   if (b.sort_order === '' || b.sort_order == null) {
     b.sort_order = '0';
   } else {

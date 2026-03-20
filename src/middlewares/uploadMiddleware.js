@@ -1,7 +1,13 @@
+const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 
 const uploadDir = path.join(process.cwd(), 'uploads');
+try {
+  fs.mkdirSync(uploadDir, { recursive: true });
+} catch {
+  // 若無寫入權限，後續 multer 會丟錯，啟動時仍盡力建立目錄
+}
 
 const storage = multer.diskStorage({
   destination: function destination(req, file, cb) {

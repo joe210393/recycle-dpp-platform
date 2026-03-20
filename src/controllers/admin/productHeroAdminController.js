@@ -1,6 +1,7 @@
 const { createAdminCrudController } = require('./crudControllerFactory');
 const { productHeroService } = require('../../services/productHeroService');
 const { preprocessEnsureNonEmpty } = require('../../utils/preprocessEnsureNonEmpty');
+const { omitEmptyImagePathsOnPut } = require('../../utils/omitEmptyImagePathsOnPut');
 
 const listFields = [
   { key: 'id', label: '編號' },
@@ -16,8 +17,10 @@ const formFields = [
   { key: 'hero_image_path', label: '商品圖（上傳檔或填網址/路徑）', type: 'image' },
 ];
 
-function preprocess(body) {
-  return preprocessEnsureNonEmpty(body, [{ key: 'title', label: '主標題' }]);
+function preprocess(body, req) {
+  const b = preprocessEnsureNonEmpty(body, [{ key: 'title', label: '主標題' }]);
+  omitEmptyImagePathsOnPut(b, req, ['hero_image_path']);
+  return b;
 }
 
 module.exports = createAdminCrudController({
