@@ -62,7 +62,22 @@
           { title: '觸發更新', description: '觸發狀態與內容更新。', icon_path: '' },
           { title: '畫面完成', description: '完成前台可視化呈現。', icon_path: '' }
         ];
-      const heroImage = safeHero.hero_image_path ? safeHero.hero_image_path : 'assets/hero-illustration.svg';
+      function normalizeAssetUrl(v) {
+        if (!v || typeof v !== 'string') return '';
+        var s = v.trim();
+        if (!s) return '';
+        if (/^https?:\/\//i.test(s)) return s;
+        // 允許填入「/public/...」或「assets/...」：統一轉成前導 /
+        if (s.startsWith('/public/')) return '/' + s.slice('/public/'.length);
+        if (s.startsWith('public/')) return '/' + s.slice('public/'.length);
+        if (s.startsWith('/')) return s;
+        return '/' + s;
+      }
+
+      const heroImage = normalizeAssetUrl(safeHero.hero_image_path) || '/assets/hero-illustration.svg';
+      const productShowcaseImage = normalizeAssetUrl(
+        productHero && productHero.hero_image_path ? productHero.hero_image_path : ''
+      ) || '/assets/product-illustration.svg';
     %>
     <header class="header">
       <div class="container nav">
@@ -159,7 +174,7 @@
           </div>
         </div>
         <div class="card">
-          <img src="/assets/product-illustration.svg" alt="SENWEI 商品形象圖">
+          <img src="<%= productShowcaseImage %>" alt="SENWEI 商品形象圖" />
         </div>
       </div>
     </section>

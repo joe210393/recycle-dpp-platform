@@ -65,6 +65,7 @@ router.get('/', async (req, res, next) => {
     // If tables don't exist, fall back to defaults to avoid 500.
     let heroes = [];
     let flowSteps = [];
+    let productHeroes = [];
     try {
       heroes = await homeHeroService.listAll();
     } catch (err) {
@@ -76,12 +77,19 @@ router.get('/', async (req, res, next) => {
       if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
     }
 
+    try {
+      productHeroes = await productHeroService.listAll();
+    } catch (err) {
+      if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
+    }
+
     const hero = heroes && heroes[0] ? heroes[0] : defaultHero;
+    const productHero = productHeroes && productHeroes[0] ? productHeroes[0] : defaultProductHero;
     const flow = (flowSteps && flowSteps.length > 0
       ? [...flowSteps].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
       : defaultFlowSteps);
 
-    res.render('public/home', { hero, flow });
+    res.render('public/home', { hero, flow, productHero });
   } catch (err) {
     return next(err);
   }

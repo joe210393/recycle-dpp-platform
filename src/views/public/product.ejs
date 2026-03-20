@@ -27,6 +27,19 @@
     </header>
 
     <main>
+      <% 
+        function normalizeAssetUrl(v) {
+          if (!v || typeof v !== 'string') return '';
+          var s = v.trim();
+          if (!s) return '';
+          if (/^https?:\/\//i.test(s)) return s;
+          if (s.startsWith('/public/')) return '/' + s.slice('/public/'.length);
+          if (s.startsWith('public/')) return '/' + s.slice('public/'.length);
+          if (s.startsWith('/')) return s;
+          return '/' + s;
+        }
+        const productImg = normalizeAssetUrl(hero && hero.hero_image_path) || '/assets/product-illustration.svg';
+      %>
       <section class="page-hero center">
         <div class="container">
           <span class="eyebrow"><%= hero.eyebrow %></span>
@@ -38,7 +51,7 @@
       <section class="section">
         <div class="container product-showcase">
           <div class="product-panel image">
-            <img src="/assets/product-illustration.svg" alt="森維修護潤澤精華乳產品視覺">
+            <img src="<%= productImg %>" alt="森維修護潤澤精華乳產品視覺" />
           </div>
           <div class="product-panel copy">
             <div class="inner">
