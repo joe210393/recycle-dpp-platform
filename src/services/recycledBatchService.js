@@ -1,4 +1,5 @@
 const { recycledBatchModel } = require('../models/recycledBatchModel');
+const { getPool } = require('../config/db');
 const crypto = require('crypto');
 const {
   getUsedQuantityForBatch,
@@ -62,7 +63,68 @@ const recycledBatchService = {
     await syncRecycledBatchProcessedStatus(id);
     return out;
   },
-  remove: (...args) => recycledBatchModel.remove(...args),
+  /**
+   * 刪除回收批次：依外鍵順序一併刪除關聯的用料鏈結、材料批次、處理紀錄與文件索引。
+   */
+  async remove(id) {
+    const batchId = Number(id);
+    if (!Number.isFinite(batchId)) throw new Error('無效的回收批次 ID');
+
+    const pool = await getPool();
+    const conn = await pool.getConnection();
+    try {
+      await conn.beginTransaction();
+
+      const [mbRows] = await conn.query(
+        `SELECT id FROM material_batches
+         WHERE source_recycled_batch_id = ?
+            OR processing_record_id IN (
+              SELECT id FROM processing_records WHERE recycled_batch_id = ?
+            )`,
+        [batchId, batchId]
+      );
+      const mbIds = mbRows.map((r) => r.id);
+
+      const [prRows] = await conn.query(
+        'SELECT id FROM processing_records WHERE recycled_batch_id = ?',
+        [batchId]
+      );
+      const prIds = prRows.map((r) => r.id);
+
+      if (mbIds.length > 0) {
+        const ph = mbIds.map(() => '?').join(',');
+        await conn.query(`DELETE FROM product_batch_material_batches WHERE material_batch_id IN (${ph})`, mbIds);
+        await conn.query(
+          `DELETE FROM documents WHERE target_type = 'material_batch' AND target_id IN (${ph})`,
+          mbIds
+        );
+        await conn.query(`DELETE FROM material_batches WHERE id IN (${ph})`, mbIds);
+      }
+
+      if (prIds.length > 0) {
+        const ph = prIds.map(() => '?').join(',');
+        await conn.query(
+          `DELETE FROM documents WHERE target_type = 'processing_record' AND target_id IN (${ph})`,
+          prIds
+        );
+      }
+
+      await conn.query('DELETE FROM processing_records WHERE recycled_batch_id = ?', [batchId]);
+      await conn.query(
+        "DELETE FROM documents WHERE target_type = 'recycled_batch' AND target_id = ?",
+        [batchId]
+      );
+      const [del] = await conn.query('DELETE FROM recycled_batches WHERE id = ?', [batchId]);
+
+      await conn.commit();
+      return { affectedRows: del.affectedRows };
+    } catch (err) {
+      await conn.rollback();
+      throw err;
+    } finally {
+      conn.release();
+    }
+  },
 };
 
 module.exports = { recycledBatchService };

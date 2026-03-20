@@ -12,7 +12,7 @@
   }
 %>
 <h1><%= title %></h1>
-<p style="color:#555; font-size:14px;">
+<p class="admin-muted" style="font-size: 0.95rem">
   本次使用數量會從所選<strong>回收批次</strong>的剩餘數量扣除；扣除後會自動更新該批次的處理狀態（待處理／部分處理／已處理）。<br />
   產出材料可選既有材料主檔，或選「新增新材料」並填寫名稱（材料代碼由系統產生）。
 </p>
@@ -24,15 +24,15 @@
     <input type="hidden" name="_method" value="PUT" />
   <% } %>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 900px;">
-    <label>
-      <div style="font-weight: 600; margin-bottom: 4px;">處理單號</div>
-      <input type="text" value="<%= record.process_no || '（建立後產生）' %>" readonly style="width:100%; background:#f5f5f5;" />
+  <div class="admin-form-grid" style="max-width: 900px">
+    <label class="admin-field">
+      <div>處理單號</div>
+      <input type="text" value="<%= record.process_no || '（建立後產生）' %>" readonly style="background: rgba(203, 209, 181, 0.15)" />
     </label>
 
-    <label>
-      <div style="font-weight: 600; margin-bottom: 4px;">狀態</div>
-      <select name="status" style="width:100%;">
+    <label class="admin-field">
+      <div>狀態</div>
+      <select name="status">
         <% const st = record.status || 'completed'; %>
         <option value="draft" <%= st === 'draft' ? 'selected' : '' %>>草稿</option>
         <option value="completed" <%= st === 'completed' ? 'selected' : '' %>>已完成</option>
@@ -40,9 +40,9 @@
       </select>
     </label>
 
-    <label style="grid-column: 1 / -1;">
-      <div style="font-weight: 600; margin-bottom: 4px;">來源回收批次 <span style="color:#c00;">*</span></div>
-      <select name="recycled_batch_id" required style="width:100%;">
+    <label class="admin-field" style="grid-column: 1 / -1">
+      <div>來源回收批次 <span style="color: #8b4545">*</span></div>
+      <select name="recycled_batch_id" required>
         <option value="">請選擇</option>
         <% for (const b of batchesWithRemaining || []) { %>
           <option value="<%= b.id %>" <%= String(record.recycled_batch_id) === String(b.id) ? 'selected' : '' %>>
@@ -54,34 +54,33 @@
       </select>
     </label>
 
-    <label>
-      <div style="font-weight: 600; margin-bottom: 4px;">本次使用回收物數量 <span style="color:#c00;">*</span></div>
+    <label class="admin-field">
+      <div>本次使用回收物數量 <span style="color: #8b4545">*</span></div>
       <input type="number" name="quantity_used" step="0.001" min="0.001" required
-        value="<%= record.quantity_used != null ? record.quantity_used : '' %>"
-        style="width:100%;" />
-      <div style="color:#666; font-size:12px; margin-top:4px;">不可大於該批次「剩餘」數量。</div>
+        value="<%= record.quantity_used != null ? record.quantity_used : '' %>" />
+      <div class="help">不可大於該批次「剩餘」數量。</div>
     </label>
 
-    <label>
-      <div style="font-weight: 600; margin-bottom: 4px;">處理方式</div>
-      <input type="text" name="process_method" value="<%= record.process_method || '' %>" style="width:100%;" />
+    <label class="admin-field">
+      <div>處理方式</div>
+      <input type="text" name="process_method" value="<%= record.process_method || '' %>" />
     </label>
 
-    <label style="grid-column: 1 / -1;">
-      <div style="font-weight: 600; margin-bottom: 4px;">處理日期時間（GMT+8）</div>
+    <label class="admin-field" style="grid-column: 1 / -1">
+      <div>處理日期時間（GMT+8）</div>
       <input type="datetime-local" name="process_date"
         value="<%= formatDateTimeLocalValue(record.process_date) %>"
-        style="width:100%; max-width:280px;" />
+        style="max-width: 280px" />
     </label>
 
-    <label style="grid-column: 1 / -1;">
-      <div style="font-weight: 600; margin-bottom: 4px;">處理結果備註</div>
-      <textarea name="result_note" rows="3" style="width:100%;"><%= record.result_note || '' %></textarea>
+    <label class="admin-field" style="grid-column: 1 / -1">
+      <div>處理結果備註</div>
+      <textarea name="result_note" rows="3"><%= record.result_note || '' %></textarea>
     </label>
   </div>
 
-  <h2 style="margin-top:24px;">產出材料（可選多筆）</h2>
-  <p style="color:#666; font-size:13px;">每筆可選既有材料，或選「新增新材料」並填寫名稱；儲存後會建立材料主檔與材料批次。</p>
+  <h2>產出材料（可選多筆）</h2>
+  <p class="admin-muted" style="font-size: 0.92rem">每筆可選既有材料，或選「新增新材料」並填寫名稱；儲存後會建立材料主檔與材料批次。</p>
 
   <% 
     const maxRows = Math.max(5, (materialLines && materialLines.length) ? materialLines.length : 0);
@@ -90,12 +89,12 @@
       const mid = ml ? String(ml.material_id) : '';
       const qProd = ml && ml.quantity_produced != null ? ml.quantity_produced : '';
   %>
-    <div style="border:1px solid #ddd; border-radius:8px; padding:12px; margin-bottom:10px; background:#fafafa;">
-      <div style="font-weight:700; margin-bottom:8px;">產出 #<%= i + 1 %></div>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-        <label>
-          <div style="font-size:13px; margin-bottom:4px;">材料</div>
-          <select name="material_lines[<%= i %>][material_id]" style="width:100%;">
+    <div class="admin-card">
+      <div class="admin-card-title">產出 #<%= i + 1 %></div>
+      <div class="admin-form-grid" style="gap: 10px">
+        <label class="admin-field">
+          <div style="font-size: 0.85rem">材料</div>
+          <select name="material_lines[<%= i %>][material_id]">
             <option value="">（不填則略過本列）</option>
             <option value="new" <%= mid === 'new' ? 'selected' : '' %>>── 新增新材料 ──</option>
             <% for (const m of materials || []) { %>
@@ -105,37 +104,36 @@
             <% } %>
           </select>
         </label>
-        <label>
-          <div style="font-size:13px; margin-bottom:4px;">產出數量</div>
+        <label class="admin-field">
+          <div style="font-size: 0.85rem">產出數量</div>
           <input type="number" name="material_lines[<%= i %>][quantity_produced]" step="0.001" min="0"
             value="<%= qProd %>"
-            placeholder="有選材料時建議填寫"
-            style="width:100%;" />
+            placeholder="有選材料時建議填寫" />
         </label>
-        <label style="grid-column: 1 / -1;">
-          <div style="font-size:13px; margin-bottom:4px;">新材料名稱（選「新增新材料」時必填）</div>
+        <label class="admin-field" style="grid-column: 1 / -1">
+          <div style="font-size: 0.85rem">新材料名稱（選「新增新材料」時必填）</div>
           <input type="text" name="material_lines[<%= i %>][new_material_name]"
             value="<%= mid === 'new' && ml && ml.new_material_name ? ml.new_material_name : '' %>"
-            style="width:100%;" placeholder="例：再生 HDPE 顆粒" />
+            placeholder="例：再生 HDPE 顆粒" />
         </label>
-        <label>
-          <div style="font-size:13px; margin-bottom:4px;">新材料分類</div>
-          <input type="text" name="material_lines[<%= i %>][category]" value="" style="width:100%;" />
+        <label class="admin-field">
+          <div style="font-size: 0.85rem">新材料分類</div>
+          <input type="text" name="material_lines[<%= i %>][category]" value="" />
         </label>
-        <label>
-          <div style="font-size:13px; margin-bottom:4px;">新材料說明</div>
-          <input type="text" name="material_lines[<%= i %>][description]" value="" style="width:100%;" />
+        <label class="admin-field">
+          <div style="font-size: 0.85rem">新材料說明</div>
+          <input type="text" name="material_lines[<%= i %>][description]" value="" />
         </label>
-        <label style="grid-column: 1 / -1;">
-          <div style="font-size:13px; margin-bottom:4px;">新材料內部備註</div>
-          <input type="text" name="material_lines[<%= i %>][internal_note]" value="" style="width:100%;" />
+        <label class="admin-field" style="grid-column: 1 / -1">
+          <div style="font-size: 0.85rem">新材料內部備註</div>
+          <input type="text" name="material_lines[<%= i %>][internal_note]" value="" />
         </label>
       </div>
     </div>
   <% } %>
 
-  <div style="margin-top: 20px;">
-    <button type="submit"><%= mode === 'edit' ? '儲存' : '建立' %></button>
-    <a href="/admin/<%= resourceSlug %>" style="margin-left: 12px;">返回</a>
+  <div class="admin-form-actions">
+    <button class="admin-btn admin-btn-primary" type="submit"><%= mode === 'edit' ? '儲存' : '建立' %></button>
+    <a class="admin-btn" href="/admin/<%= resourceSlug %>">返回列表</a>
   </div>
 </form>

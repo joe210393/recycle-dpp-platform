@@ -55,19 +55,19 @@
     <input type="hidden" name="_method" value="PUT" />
   <% } %>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+  <div class="admin-form-grid">
     <% for (const field of formFields) { %>
       <% const showKey = field.showWhenKey || ''; %>
       <% const showValue = field.showWhenValue || ''; %>
       <div
-        class="form-field"
+        class="form-field admin-field"
         data-show-when-key="<%= showKey %>"
         data-show-when-value="<%= showValue %>"
         style="<%= field.showWhenKey ? 'display:none;' : '' %>">
         <label>
-          <div style="font-weight: 600; margin-bottom: 4px;"><%= field.label %></div>
+          <div><%= field.label %></div>
           <% if (field.helpText) { %>
-            <div style="color:#666; font-size: 12px; margin-bottom: 4px;"><%= field.helpText %></div>
+            <div class="help"><%= field.helpText %></div>
           <% } %>
 
           <% const rawVal = (record && record[field.key] !== undefined && record[field.key] !== null) ? record[field.key] : ''; %>
@@ -86,13 +86,18 @@
           <% if (field.type !== 'date' && field.type !== 'datetime-local' && isDateObj) { inputVal = formatDateInput(rawVal); } %>
 
           <% if (field.type === 'textarea') { %>
-            <textarea name="<%= field.key %>" rows="5" style="width: 100%;" <%= field.readonly ? 'readonly' : '' %>><%= displayValue %></textarea>
+            <textarea name="<%= field.key %>" rows="5" <%= field.readonly ? 'readonly' : '' %>><%= displayValue %></textarea>
           <% } else if (field.type === 'checkbox') { %>
             <input type="hidden" name="<%= field.key %>" value="0" />
             <input type="checkbox" name="<%= field.key %>" value="1" <%= String(rawVal) === '1' ? 'checked' : '' %> <%= field.readonly ? 'disabled' : '' %> />
           <% } else if (field.type === 'select') { %>
-            <div style="display:flex; gap:8px; align-items:center;">
-              <select name="<%= field.key %>" <%= field.required ? 'required' : '' %> <%= field.readonly ? 'disabled' : '' %> style="flex:1;">
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+              <select
+                name="<%= field.key %>"
+                <%= field.required ? 'required' : '' %>
+                <%= field.readonly ? 'disabled' : '' %>
+                style="flex: 1; min-width: 140px"
+              >
                 <% for (const opt of field.options || []) { %>
                   <option value="<%= opt.value %>" <%= String(rawVal) === String(opt.value) ? 'selected' : '' %>>
                     <%= opt.label %>
@@ -100,10 +105,7 @@
                 <% } %>
               </select>
               <% if (field.helpLink && field.showAddButton !== false) { %>
-                <a href="<%= field.helpLink.href %>" target="_blank" rel="noreferrer"
-                   style="white-space:nowrap; text-decoration:none; border:1px solid #ddd; border-radius:8px; padding:6px 10px; background:#fafafa;">
-                  ＋新增
-                </a>
+                <a class="admin-btn" href="<%= field.helpLink.href %>" target="_blank" rel="noreferrer">＋新增</a>
               <% } %>
             </div>
           <% } else { %>
@@ -113,7 +115,6 @@
               value="<%= inputVal %>"
               <%= field.required ? 'required' : '' %>
               <%= field.readonly ? 'readonly' : '' %>
-              style="width: 100%;"
             />
           <% } %>
         </label>
@@ -142,9 +143,9 @@
     })();
   </script>
 
-  <div style="margin-top: 16px;">
-    <button type="submit"><%= mode === 'edit' ? '儲存' : '建立' %></button>
-    <a href="/admin/<%= resourceSlug %>" style="margin-left: 12px;">返回</a>
+  <div class="admin-form-actions">
+    <button class="admin-btn admin-btn-primary" type="submit"><%= mode === 'edit' ? '儲存' : '建立' %></button>
+    <a class="admin-btn" href="/admin/<%= resourceSlug %>">返回列表</a>
   </div>
 </form>
 

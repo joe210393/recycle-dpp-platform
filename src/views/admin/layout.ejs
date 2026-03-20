@@ -3,104 +3,89 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title><%= title %></title>
-    <style>
-      body { font-family: Arial, Helvetica, sans-serif; margin: 16px; }
-      a { color: #0b5fff; }
-      table { border-collapse: collapse; width: 100%; }
-      th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-      th { background: #f6f6f6; }
-      .actions form { display: inline; }
-      /* Header + flow navigation */
-      .admin-header { border: 1px solid #e5e5e5; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
-      .admin-header-title { font-weight: 800; margin-right: 16px; display: inline-block; }
-      .admin-nav { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
-      details { margin: 0; }
-      details > summary {
-        cursor: pointer;
-        font-weight: 700;
-        list-style: none;
-        padding: 8px 10px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        background: #fafafa;
-      }
-      details[open] > summary { background: #f0f0f0; }
-      .flow-links { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 8px 10px; margin-top: 6px; }
-      .flow-links a { display: block; padding: 6px 0; text-decoration: none; }
-      .flow-links a:hover { text-decoration: underline; }
-    </style>
+    <title><%= title %>｜後台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
   </head>
-  <body>
-    <header class="admin-header">
-      <span class="admin-header-title">後台</span>
-      <a href="/admin" style="margin-right: 14px; text-decoration: none; font-weight: 700;">後台首頁</a>
+  <body class="admin-body">
+    <header class="admin-top">
+      <div class="admin-top-inner">
+        <div class="admin-brand-row">
+          <div class="admin-brand"><a href="/">SENWEI</a></div>
+          <a class="admin-home-link" href="/admin">後台首頁</a>
+          <a class="admin-home-link" href="/" style="background: transparent; border: 1px solid rgba(168, 175, 143, 0.35)"
+            >前往前台</a
+          >
+        </div>
 
-      <nav class="admin-nav">
-        <details>
-          <summary>回收</summary>
-          <div class="flow-links">
-            <a href="/admin/recyclers">回收廠商</a>
-            <a href="/admin/recycled-items">回收物類型</a>
-            <a href="/admin/recycled-batches">回收批次</a>
-            <a href="/admin/processing-records">處理紀錄</a>
-          </div>
-        </details>
+        <nav class="admin-nav" aria-label="後台選單">
+          <details>
+            <summary>回收</summary>
+            <div class="flow-links">
+              <a href="/admin/recyclers">回收廠商</a>
+              <a href="/admin/recycled-items">回收物類型</a>
+              <a href="/admin/recycled-batches">回收批次</a>
+            </div>
+          </details>
 
-        <details>
-          <summary>材料</summary>
-          <div class="flow-links">
-            <a href="/admin/processing-records">處理紀錄</a>
-            <a href="/admin/materials">材料主檔</a>
-            <a href="/admin/material-batches">材料批次</a>
-          </div>
-        </details>
+          <details>
+            <summary>材料</summary>
+            <div class="flow-links">
+              <a href="/admin/processing-records">處理紀錄</a>
+              <a href="/admin/materials">材料主檔</a>
+              <a href="/admin/material-batches">材料批次</a>
+            </div>
+          </details>
 
-        <details>
-          <summary>商品</summary>
-          <div class="flow-links">
-            <a href="/admin/products">商品</a>
-            <a href="/admin/product-versions">商品版本</a>
-            <a href="/admin/product-bom">商品 BOM</a>
-            <a href="/admin/product-batches">商品批次</a>
-            <a href="/admin/product-batch-material-batches">商品用料鏈結</a>
-          </div>
-        </details>
+          <details>
+            <summary>商品</summary>
+            <div class="flow-links">
+              <a href="/admin/products">商品</a>
+              <a href="/admin/product-versions">商品版本</a>
+              <a href="/admin/product-bom">商品 BOM</a>
+              <a href="/admin/product-batches">商品批次</a>
+              <a href="/admin/product-batch-material-batches">商品用料鏈結</a>
+            </div>
+          </details>
 
-        <details>
-          <summary>護照</summary>
-          <div class="flow-links">
-            <a href="/admin/documents">文件附件</a>
-            <a href="/admin/product-passports">商品護照</a>
-            <a href="/admin/passport-views">護照顯示設定</a>
-          </div>
-        </details>
+          <details>
+            <summary>護照</summary>
+            <div class="flow-links">
+              <a href="/admin/documents">文件附件</a>
+              <a href="/admin/product-passports">商品護照</a>
+              <a href="/admin/passport-views">護照顯示設定</a>
+            </div>
+          </details>
 
-        <details>
-          <summary>DPP 匯出</summary>
-          <div class="flow-links">
-            <a href="/admin/dpp-exports">DPP 匯出</a>
-          </div>
-        </details>
+          <details>
+            <summary>DPP 匯出</summary>
+            <div class="flow-links">
+              <a href="/admin/dpp-exports">DPP 匯出</a>
+            </div>
+          </details>
 
-        <details>
-          <summary>前台內容</summary>
-          <div class="flow-links">
-            <a href="/admin/home-hero">首頁 Hero 區塊</a>
-            <a href="/admin/home-flow-steps">首頁流程區塊</a>
-            <a href="/admin/about-hero">關於我們 Hero 區塊</a>
-            <a href="/admin/product-hero">商品頁 Hero 區塊</a>
-            <a href="/admin/passport-hero">商品護照 Hero 區塊</a>
-          </div>
-        </details>
-      </nav>
+          <details>
+            <summary>前台內容</summary>
+            <div class="flow-links">
+              <a href="/admin/home-hero">首頁 Hero 區塊</a>
+              <a href="/admin/home-flow-steps">首頁流程區塊</a>
+              <a href="/admin/about-hero">關於我們 Hero 區塊</a>
+              <a href="/admin/product-hero">商品頁 Hero 區塊</a>
+              <a href="/admin/passport-hero">商品護照 Hero 區塊</a>
+            </div>
+          </details>
+        </nav>
+      </div>
     </header>
 
-    <hr />
-
-    <main>
+    <main class="container admin-main">
       <%- include(view) %>
     </main>
   </body>
 </html>
-
