@@ -67,7 +67,7 @@ router.get('/', async (req, res, next) => {
     let flowSteps = [];
     let productHeroes = [];
     try {
-      heroes = await homeHeroService.listAll();
+      heroes = [await homeHeroService.getFirstForPublic()].filter(Boolean);
     } catch (err) {
       if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
     }
@@ -78,7 +78,8 @@ router.get('/', async (req, res, next) => {
     }
 
     try {
-      productHeroes = await productHeroService.listAll();
+      const ph = await productHeroService.getFirstForPublic();
+      productHeroes = ph ? [ph] : [];
     } catch (err) {
       if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
     }
@@ -97,13 +98,13 @@ router.get('/', async (req, res, next) => {
 
 router.get('/about', async (req, res, next) => {
   try {
-    let heroes = [];
+    let hero = null;
     try {
-      heroes = await aboutHeroService.listAll();
+      hero = await aboutHeroService.getFirstForPublic();
     } catch (err) {
       if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
     }
-    const hero = heroes && heroes[0] ? heroes[0] : defaultAboutHero;
+    hero = hero || defaultAboutHero;
     return res.render('public/about', { hero });
   } catch (err) {
     return next(err);
@@ -112,13 +113,13 @@ router.get('/about', async (req, res, next) => {
 
 router.get('/product', async (req, res, next) => {
   try {
-    let heroes = [];
+    let hero = null;
     try {
-      heroes = await productHeroService.listAll();
+      hero = await productHeroService.getFirstForPublic();
     } catch (err) {
       if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
     }
-    const hero = heroes && heroes[0] ? heroes[0] : defaultProductHero;
+    hero = hero || defaultProductHero;
     return res.render('public/product', { hero });
   } catch (err) {
     return next(err);
@@ -127,13 +128,13 @@ router.get('/product', async (req, res, next) => {
 
 router.get('/passport', async (req, res, next) => {
   try {
-    let heroes = [];
+    let hero = null;
     try {
-      heroes = await passportHeroService.listAll();
+      hero = await passportHeroService.getFirstForPublic();
     } catch (err) {
       if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
     }
-    const hero = heroes && heroes[0] ? heroes[0] : defaultPassportHero;
+    hero = hero || defaultPassportHero;
 
     const batchNo = req.query.batchNo || '';
     const results = batchNo ? await traceabilityService.lookupByBatchNo({ batchNo }) : [];

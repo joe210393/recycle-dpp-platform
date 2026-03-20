@@ -9,11 +9,19 @@
  * @param {import('express').Request} req
  * @param {string[]} keys
  */
+/**
+ * 判斷是否為「後台 CRUD 更新」：要略過空的圖片欄位以免覆蓋 DB。
+ * 優先使用 Express 已匹配的 req.route（不受反向代理改寫 originalUrl 影響）。
+ */
 function isCrudUpdateRequest(req) {
   const m = String(req.method || '').toUpperCase();
   if (m === 'PUT') return true;
+  if (m !== 'POST') return false;
+  const routePath = req.route && req.route.path;
+  if (routePath === '/:id/update') return true;
   const pathOnly = String(req.originalUrl || req.url || '').split('?')[0];
-  return m === 'POST' && /\/[^/]+\/update$/.test(pathOnly);
+  // 允許結尾可選斜線（部分平台 / Proxy 會正規化 URL）
+  return /\/[^/]+\/update\/?$/.test(pathOnly);
 }
 
 function omitEmptyImagePathsOnPut(body, req, keys = []) {

@@ -1,8 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
+const { getUploadDir } = require('../config/uploadDir');
 
-const uploadDir = path.join(process.cwd(), 'uploads');
+const uploadDir = getUploadDir();
 try {
   fs.mkdirSync(uploadDir, { recursive: true });
 } catch {

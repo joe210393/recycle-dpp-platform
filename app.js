@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const methodOverride = require('method-override');
 
+const { getUploadDir } = require('./src/config/uploadDir');
 const publicRoutes = require('./src/routes/public');
 const adminRoutes = require('./src/routes/admin');
 const { errorMiddleware } = require('./src/middlewares/errorMiddleware');
@@ -43,7 +44,7 @@ function createApp() {
   });
 
   app.use(express.static(path.join(__dirname, 'public')));
-  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+  app.use('/uploads', express.static(getUploadDir()));
   app.use('/exports', express.static(path.join(__dirname, 'exports')));
 
   app.use('/', publicRoutes);
