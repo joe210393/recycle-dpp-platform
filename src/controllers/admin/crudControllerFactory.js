@@ -57,7 +57,20 @@ function createAdminCrudController({
       await service.create(data);
       return res.redirect(`/admin/${resourceSlug}`);
     } catch (err) {
-      return next(err);
+      const resolvedFormFields =
+        typeof formFields === 'function' ? await formFields(req, null) : formFields;
+      const base =
+        typeof newRecord === 'function' ? newRecord(req) : { ...(newRecord || {}) };
+      const record = { ...base, ...(req.body || {}) };
+      return res.render('admin/layout', {
+        view: 'crud/form',
+        title: `建立${title}`,
+        resourceSlug,
+        formFields: resolvedFormFields,
+        record,
+        mode: 'create',
+        error: err && err.message ? err.message : '發生錯誤',
+      });
     }
   }
 
@@ -88,7 +101,25 @@ function createAdminCrudController({
       await service.update(id, data);
       return res.redirect(`/admin/${resourceSlug}`);
     } catch (err) {
-      return next(err);
+      const id = req.params.id;
+      let record = {};
+      try {
+        record = (await service.getById(id)) || {};
+      } catch (e) {
+        record = {};
+      }
+      const resolvedFormFields =
+        typeof formFields === 'function' ? await formFields(req, record) : formFields;
+      const merged = { ...record, ...(req.body || {}) };
+      return res.render('admin/layout', {
+        view: 'crud/form',
+        title: `編輯${title}`,
+        resourceSlug,
+        formFields: resolvedFormFields,
+        record: merged,
+        mode: 'edit',
+        error: err && err.message ? err.message : '發生錯誤',
+      });
     }
   }
 
