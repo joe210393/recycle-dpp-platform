@@ -40,7 +40,7 @@ async function showNew(req, res, next) {
     const batches = await recycledBatchService.listAll();
     const materials = await materialService.listAll();
     return res.render('admin/layout', {
-      view: 'admin/processingRecords/form',
+      view: 'processingRecords/form',
       title: '建立處理紀錄',
       resourceSlug: 'processing-records',
       mode: 'create',
@@ -75,7 +75,7 @@ async function showEdit(req, res, next) {
       id
     );
     return res.render('admin/layout', {
-      view: 'admin/processingRecords/form',
+      view: 'processingRecords/form',
       title: '編輯處理紀錄',
       resourceSlug: 'processing-records',
       mode: 'edit',
