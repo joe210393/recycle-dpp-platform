@@ -1,6 +1,21 @@
 const path = require('path');
 const { upload } = require('./uploadMiddleware');
 
+function isUploadDebugEnabled() {
+  const v = String(process.env.DEBUG_UPLOAD_LOG || '').trim().toLowerCase();
+  return v === '1' || v === 'true' || v === 'yes' || v === 'on';
+}
+
+function debugUpload(req, payload) {
+  if (!isUploadDebugEnabled()) return;
+  // eslint-disable-next-line no-console
+  console.log('[upload-debug]', {
+    method: req.method,
+    url: req.originalUrl || req.url,
+    ...payload,
+  });
+}
+
 /**
  * 支援「圖片上傳」+「填網址/路徑」雙模式：
  * - file input: <key>_file
@@ -18,7 +33,20 @@ function imageUpload(keys = []) {
   return [
     (req, res, next) => {
       uploadMw(req, res, (err) => {
-        if (err) return next(err);
+        if (err) {
+          debugUpload(req, {
+            stage: 'multer-error',
+            errorName: err.name,
+            errorCode: err.code,
+            errorMessage: err.message,
+          });
+          return next(err);
+        }
+        debugUpload(req, {
+          stage: 'multer-ok',
+          bodyHeroImagePath: req.body && req.body.hero_image_path,
+          fileFields: Object.keys(req.files || {}),
+        });
         return next();
       });
     },
@@ -33,6 +61,11 @@ function imageUpload(keys = []) {
           req.body[key] = `/uploads/${name}`;
         }
       }
+      debugUpload(req, {
+        stage: 'post-map',
+        bodyHeroImagePath: req.body && req.body.hero_image_path,
+        fileFields: Object.keys(req.files || {}),
+      });
       next();
     },
   ];
