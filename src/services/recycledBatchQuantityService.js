@@ -5,13 +5,27 @@ const { getPool } = require('../config/db');
  */
 async function getUsedQuantityForBatch(recycledBatchId, conn) {
   const q = conn || (await getPool());
-  const [rows] = await q.query(
-    `SELECT COALESCE(SUM(quantity_used), 0) AS s
-     FROM processing_records
-     WHERE recycled_batch_id = ? AND status != 'cancelled'`,
-    [recycledBatchId]
-  );
-  return Number(rows[0].s);
+  try {
+    const [rows] = await q.query(
+      `SELECT COALESCE(SUM(quantity_used), 0) AS s
+       FROM processing_records
+       WHERE recycled_batch_id = ? AND status != 'cancelled'`,
+      [recycledBatchId]
+    );
+    return Number(rows[0].s);
+  } catch (err) {
+    // DB 尚未執行 migration 022 時沒有 quantity_used 欄位（雙重保險）
+    const msg = err && err.sqlMessage ? String(err.sqlMessage) : '';
+    if (
+      err &&
+      (err.code === 'ER_BAD_FIELD_ERROR' ||
+        err.errno === 1054 ||
+        /Unknown column/i.test(msg))
+    ) {
+      return 0;
+    }
+    throw err;
+  }
 }
 
 /**
