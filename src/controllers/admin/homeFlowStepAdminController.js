@@ -1,5 +1,6 @@
 const { createAdminCrudController } = require('./crudControllerFactory');
 const { homeFlowStepService } = require('../../services/homeFlowStepService');
+const { preprocessEnsureNonEmpty } = require('../../utils/preprocessEnsureNonEmpty');
 
 const listFields = [
   { key: 'id', label: 'ID' },
@@ -14,9 +15,9 @@ const formFields = [
   { key: 'sort_order', label: '顯示順序（數字越小越前面）', type: 'number' },
 ];
 
-/** 空欄位經 sanitize 會變 NULL，INSERT 會覆蓋 DB DEFAULT；sort_order 為 NOT NULL，需給預設值 */
+/** title NOT NULL；sort_order 空值經 sanitize 會變 NULL，需預設 */
 function preprocess(body) {
-  const b = { ...(body || {}) };
+  const b = preprocessEnsureNonEmpty(body, [{ key: 'title', label: '步驟標題' }]);
   if (b.sort_order === '' || b.sort_order == null) {
     b.sort_order = '0';
   } else {

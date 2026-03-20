@@ -1,5 +1,6 @@
 const { createAdminCrudController } = require('./crudControllerFactory');
 const { homeHeroService } = require('../../services/homeHeroService');
+const { preprocessEnsureNonEmpty } = require('../../utils/preprocessEnsureNonEmpty');
 
 const listFields = [
   { key: 'id', label: 'ID' },
@@ -25,11 +26,16 @@ const formFields = [
   { key: 'info3_body', label: '重點三說明', type: 'textarea' },
 ];
 
+function preprocess(body) {
+  return preprocessEnsureNonEmpty(body, [{ key: 'title', label: '主標題' }]);
+}
+
 module.exports = createAdminCrudController({
   resourceSlug: 'home-hero',
   title: '首頁 Hero 區塊',
   service: homeHeroService,
   listFields,
   formFields,
+  preprocess,
 });
 
