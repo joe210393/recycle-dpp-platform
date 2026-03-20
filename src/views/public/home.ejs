@@ -190,7 +190,7 @@
               <div class="node">
                 <div class="node-circle">
                   <% if (step.icon_path) { %>
-                    <img src="<%= step.icon_path %>" alt="<%= step.title %>" />
+                    <img src="<%= normalizeAssetUrl(step.icon_path) %>" alt="<%= step.title %>" />
                   <% } else { %>
                     <div class="node-icon">無圖示</div>
                   <% } %>
