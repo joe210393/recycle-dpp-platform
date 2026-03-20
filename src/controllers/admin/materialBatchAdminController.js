@@ -53,7 +53,9 @@ async function getFormFields(req, record) {
       options: materialOptions,
       required: true,
     },
-    { key: 'batch_no', label: '材料批次號', required: true },
+    ...(record && record.batch_no
+      ? [{ key: 'batch_no', label: '材料批次號（系統產生）', readonly: true }]
+      : []),
     {
       key: 'processing_record_id',
       label: '處理紀錄',

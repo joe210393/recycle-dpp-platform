@@ -20,6 +20,9 @@ const processingRecordService = {
     if (!payload.process_no || String(payload.process_no).trim() === '') {
       payload.process_no = generateProcessNo();
     }
+    if (payload.quantity_used == null || payload.quantity_used === '') {
+      payload.quantity_used = 0;
+    }
     return processingRecordModel.create(payload);
   },
   async update(id, data) {

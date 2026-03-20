@@ -5,6 +5,7 @@ const processingRecordModel = buildCrudModel({
   columns: [
     'process_no',
     'recycled_batch_id',
+    'quantity_used',
     'process_method',
     'process_date',
     'result_note',

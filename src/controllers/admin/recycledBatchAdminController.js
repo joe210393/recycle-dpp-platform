@@ -2,12 +2,14 @@ const { createAdminCrudController } = require('./crudControllerFactory');
 const { recycledBatchService } = require('../../services/recycledBatchService');
 
 const listFields = [
-  { key: 'id', label: 'ID' },
+  { key: 'id', label: '編號' },
   { key: 'batch_no', label: '回收批次號' },
   { key: 'recycled_item_id', label: '回收物 ID' },
   { key: 'recycler_id', label: '回收廠商 ID' },
   { key: 'received_date', label: '收料日期' },
-  { key: 'quantity', label: '數量' },
+  { key: 'quantity', label: '進貨數量' },
+  { key: 'used_quantity', label: '已使用' },
+  { key: 'remaining_quantity', label: '剩餘' },
   { key: 'processed_status', label: '處理狀態' },
   { key: 'public_visible', label: '是否公開' },
 ];
@@ -67,16 +69,18 @@ async function getFormFields(req, record) {
     { key: 'certificate_no', label: '回收證號' },
     { key: 'test_report_summary', label: '檢測報告摘要', type: 'textarea' },
     { key: 'attachment_file', label: '附件檔案' },
-    {
-      key: 'processed_status',
-      label: '處理狀態',
-      type: 'select',
-      options: [
-        { value: 'pending', label: '待處理' },
-        { value: 'partial', label: '部分處理' },
-        { value: 'processed', label: '已處理' },
-      ],
-    },
+    ...(record && record.batch_no
+      ? [
+          {
+            key: 'processed_status',
+            label: '處理狀態（自動）',
+            type: 'text',
+            readonly: true,
+            helpText:
+              '依處理紀錄扣量自動更新：待處理／部分處理／已處理。進貨建立時為待處理。',
+          },
+        ]
+      : []),
     { key: 'public_visible', label: '是否公開', type: 'checkbox' },
   ];
 }

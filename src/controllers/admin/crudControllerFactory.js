@@ -1,3 +1,5 @@
+const { sanitizeFormBody } = require('../../utils/sanitizeFormBody');
+
 function createAdminCrudController({
   resourceSlug,
   title,
@@ -8,30 +10,7 @@ function createAdminCrudController({
   newRecord = {},
 }) {
   function sanitizeBody(data) {
-    // Convert empty strings to NULL so MySQL DATE/NUMBER columns don't crash.
-    // (e.g. DATE columns reject '' with "Incorrect date value")
-    const out = {};
-    for (const [k, v] of Object.entries(data || {})) {
-      let val = v;
-      // Duplicate field names (e.g. hidden input "0" + checkbox "1" for public_visible)
-      // become an array under Express body-parser + qs; mysql2 then mis-binds placeholders
-      // and MySQL may report "Column count doesn't match value count".
-      if (Array.isArray(val)) {
-        val = val.length ? val[val.length - 1] : '';
-      }
-      // <input type="datetime-local"> → MySQL DATETIME
-      if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(val)) {
-        const [datePart, timePart] = val.split('T');
-        const tp = timePart.length === 5 ? `${timePart}:00` : timePart;
-        val = `${datePart} ${tp}`.slice(0, 19);
-      }
-      if (val === '') {
-        out[k] = null;
-      } else {
-        out[k] = val;
-      }
-    }
-    return out;
+    return sanitizeFormBody(data);
   }
 
   async function list(req, res, next) {
@@ -133,5 +112,5 @@ function createAdminCrudController({
   };
 }
 
-module.exports = { createAdminCrudController };
+module.exports = { createAdminCrudController, sanitizeFormBody };
 

@@ -2,7 +2,7 @@ const { createAdminCrudController } = require('./crudControllerFactory');
 const { materialService } = require('../../services/materialService');
 
 const listFields = [
-  { key: 'id', label: 'ID' },
+  { key: 'id', label: '編號' },
   { key: 'name', label: '材料名稱' },
   { key: 'code', label: '材料代碼' },
   { key: 'category', label: '材料分類' },
@@ -10,9 +10,8 @@ const listFields = [
   { key: 'status', label: '狀態' },
 ];
 
-const formFields = [
+const baseFields = [
   { key: 'name', label: '材料名稱', required: true },
-  { key: 'code', label: '材料代碼', required: true },
   { key: 'category', label: '材料分類' },
   { key: 'description', label: '材料說明', type: 'textarea' },
   { key: 'is_recycled_material', label: '是否回收再生成材料', type: 'checkbox' },
@@ -29,6 +28,21 @@ const formFields = [
   },
 ];
 
+async function formFields(req, record) {
+  const codeField =
+    record && record.code
+      ? [
+          {
+            key: 'code',
+            label: '材料代碼（系統產生）',
+            readonly: true,
+            helpText: '建立時由系統自動給予，建立後不可修改。',
+          },
+        ]
+      : [];
+  return [...codeField, ...baseFields];
+}
+
 module.exports = createAdminCrudController({
   resourceSlug: 'materials',
   title: '材料主檔',
@@ -36,4 +50,3 @@ module.exports = createAdminCrudController({
   listFields,
   formFields,
 });
-

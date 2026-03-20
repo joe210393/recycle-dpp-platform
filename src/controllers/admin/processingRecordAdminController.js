@@ -1,74 +1,120 @@
-const { createAdminCrudController } = require('./crudControllerFactory');
+const { sanitizeFormBody } = require('./crudControllerFactory');
 const { processingRecordService } = require('../../services/processingRecordService');
+const { recycledBatchService } = require('../../services/recycledBatchService');
+const { materialService } = require('../../services/materialService');
+const processingRecordWorkflowService = require('../../services/processingRecordWorkflowService');
 
 const listFields = [
   { key: 'id', label: '編號' },
   { key: 'process_no', label: '處理單號' },
-  { key: 'recycled_batch_id', label: '來源回收批次 ID' },
+  { key: 'recycled_batch_id', label: '回收批次 ID' },
+  { key: 'quantity_used', label: '本次使用數量' },
   { key: 'process_method', label: '處理方式' },
-  { key: 'process_date', label: '處理日期' },
+  { key: 'process_date', label: '處理日期時間' },
   { key: 'status', label: '狀態' },
 ];
 
-async function getFormFields(req, record) {
-  const { recycledBatchService } = require('../../services/recycledBatchService');
-  const recycledBatches = await recycledBatchService.listAll();
-
-  const recycledBatchOptions = recycledBatches.map((b) => ({
-    value: String(b.id),
-    label: `${b.batch_no}（ID:${b.id}）`,
-  }));
-  if (recycledBatchOptions.length === 0) {
-    recycledBatchOptions.push({ value: '', label: '請先建立回收批次' });
+async function list(req, res, next) {
+  try {
+    const limit = Number(req.query.limit || 20);
+    const page = Number(req.query.page || 1);
+    const offset = (page - 1) * limit;
+    const rows = await processingRecordService.list({ limit, offset });
+    return res.render('admin/layout', {
+      view: 'crud/list',
+      title: '處理紀錄',
+      resourceSlug: 'processing-records',
+      listFields,
+      rows,
+      query: req.query,
+      page,
+      limit,
+    });
+  } catch (err) {
+    return next(err);
   }
-
-  const processNoField =
-    record && record.process_no
-      ? [
-          {
-            key: 'process_no',
-            label: '處理單號（系統產生）',
-            readonly: true,
-            helpText: '建立時由系統自動給予，建立後不可修改。',
-          },
-        ]
-      : [];
-
-  return [
-    ...processNoField,
-    {
-      key: 'recycled_batch_id',
-      label: '來源回收批次',
-      type: 'select',
-      options: recycledBatchOptions,
-      required: true,
-    },
-    { key: 'process_method', label: '處理方式' },
-    {
-      key: 'process_date',
-      label: '處理日期時間',
-      type: 'datetime-local',
-      helpText: '時間以台灣時間（GMT+8）顯示與儲存。',
-    },
-    { key: 'result_note', label: '處理結果備註', type: 'textarea' },
-    {
-      key: 'status',
-      label: '狀態',
-      type: 'select',
-      options: [
-        { value: 'draft', label: '草稿' },
-        { value: 'completed', label: '已完成' },
-        { value: 'cancelled', label: '已取消' },
-      ],
-    },
-  ];
 }
 
-module.exports = createAdminCrudController({
-  resourceSlug: 'processing-records',
-  title: '處理紀錄',
-  service: processingRecordService,
-  listFields,
-  formFields: getFormFields,
-});
+async function showNew(req, res, next) {
+  try {
+    const batches = await recycledBatchService.listAll();
+    const materials = await materialService.listAll();
+    return res.render('admin/layout', {
+      view: 'admin/processingRecords/form',
+      title: '建立處理紀錄',
+      resourceSlug: 'processing-records',
+      mode: 'create',
+      record: {},
+      batchesWithRemaining: batches,
+      materials,
+      materialLines: [],
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
 
+async function create(req, res, next) {
+  try {
+    const data = sanitizeFormBody(req.body);
+    await processingRecordWorkflowService.createFromForm(data);
+    return res.redirect('/admin/processing-records');
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function showEdit(req, res, next) {
+  try {
+    const id = req.params.id;
+    const record = await processingRecordService.getById(id);
+    if (!record) return res.status(404).send('Not found');
+    const batches = await recycledBatchService.listAll();
+    const materials = await materialService.listAll();
+    const materialLines = await processingRecordWorkflowService.listMaterialOutputsForProcessingRecord(
+      id
+    );
+    return res.render('admin/layout', {
+      view: 'admin/processingRecords/form',
+      title: '編輯處理紀錄',
+      resourceSlug: 'processing-records',
+      mode: 'edit',
+      record,
+      batchesWithRemaining: batches,
+      materials,
+      materialLines,
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function update(req, res, next) {
+  try {
+    const id = req.params.id;
+    const data = sanitizeFormBody(req.body);
+    await processingRecordWorkflowService.updateFromForm(id, data);
+    return res.redirect('/admin/processing-records');
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function remove(req, res, next) {
+  try {
+    const id = req.params.id;
+    await processingRecordWorkflowService.deleteWithCascade(id);
+    return res.redirect('/admin/processing-records');
+  } catch (err) {
+    return next(err);
+  }
+}
+
+module.exports = {
+  list,
+  showNew,
+  create,
+  showEdit,
+  update,
+  remove,
+};

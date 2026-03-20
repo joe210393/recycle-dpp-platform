@@ -7,6 +7,7 @@ const materialBatchModel = buildCrudModel({
     'batch_no',
     'processing_record_id',
     'source_recycled_batch_id',
+    'quantity_produced',
     'produced_date',
     'expiry_date',
     'test_report_summary',
