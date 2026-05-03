@@ -1,5 +1,11 @@
 <h1><%= title %></h1>
 
+<% if (typeof query !== 'undefined' && query && query.saved) { %>
+  <div class="admin-card" style="border-color: rgba(90, 140, 90, 0.4); background: rgba(244, 250, 244, 0.9); margin-bottom: 16px;">
+    <div style="font-weight: 800; color: #2f5b34;">✓ 已儲存。</div>
+  </div>
+<% } %>
+
 <div class="admin-toolbar">
   <a class="admin-btn admin-btn-primary" href="/admin/<%= resourceSlug %>/new">新增</a>
 </div>
@@ -24,7 +30,29 @@
       <% for (const row of (rows || [])) { %>
         <tr>
           <% for (const f of listFields) { %>
-            <td><%= row[f.key] === null || row[f.key] === undefined ? '' : row[f.key] %></td>
+            <td>
+              <%
+                const raw = row[f.key];
+                const isEmpty = raw === null || raw === undefined || raw === '';
+              %>
+              <% if (f.type === 'image') { %>
+                <% if (!isEmpty && typeof raw === 'string') {
+                  const isUploaded = raw.startsWith('/uploads/');
+                  const stamp = row.updated_at
+                    ? (typeof row.updated_at === 'string' ? row.updated_at : (row.updated_at && row.updated_at.toISOString ? row.updated_at.toISOString() : String(row.updated_at)))
+                    : String(Date.now());
+                  const src = isUploaded
+                    ? raw + (raw.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(stamp)
+                    : raw;
+                %>
+                  <img src="<%= src %>" alt="thumb" style="width:64px; height:48px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(168, 175, 143, 0.25);" loading="lazy" />
+                <% } else { %>
+                  <span style="color: #888;">（無）</span>
+                <% } %>
+              <% } else { %>
+                <%= isEmpty ? '' : raw %>
+              <% } %>
+            </td>
           <% } %>
           <td class="actions">
             <a href="/admin/<%= resourceSlug %>/<%= row.id %>/edit">編輯</a>

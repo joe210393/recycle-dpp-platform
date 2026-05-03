@@ -55,6 +55,12 @@
   </div>
 <% } %>
 
+<% if (typeof query !== 'undefined' && query && query.saved) { %>
+  <div class="admin-card" style="border-color: rgba(90, 140, 90, 0.4); background: rgba(244, 250, 244, 0.9); margin-bottom: 16px;">
+    <div style="font-weight: 800; color: #2f5b34;">✓ 已儲存。下方為最新內容（含上傳後的新圖片）。</div>
+  </div>
+<% } %>
+
   <% 
     // 含檔案欄位時用 POST /:id/update，不依賴 method-override（multipart 時 body._method 尚未解析）
     const editFormAction = mode === 'edit'
@@ -112,6 +118,14 @@
             <%
               const v = inputVal;
               const canPreview = typeof v === 'string' && v.trim() && (v.includes('/uploads/') || v.startsWith('/assets/') || v.startsWith('http'));
+              // 預覽圖加 cache-buster，避免瀏覽器把舊上傳檔案 cache 住
+              let previewSrc = v;
+              if (canPreview && typeof v === 'string' && v.startsWith('/uploads/')) {
+                const stamp = (record && record.updated_at)
+                  ? (typeof record.updated_at === 'string' ? record.updated_at : (record.updated_at && record.updated_at.toISOString ? record.updated_at.toISOString() : String(record.updated_at)))
+                  : String(Date.now());
+                previewSrc = v + (v.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(stamp);
+              }
             %>
             <div style="display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap;">
               <div style="flex: 1; min-width: 240px;">
@@ -122,6 +136,7 @@
                     accept="image/*"
                     <%= field.readonly ? 'disabled' : '' %>
                   />
+                  <div class="help" style="margin-top: 4px;">選檔後，按下方「儲存」即會上傳並覆蓋下方網址欄位（單檔上限 20MB）。</div>
                 </div>
                 <input
                   type="text"
@@ -134,7 +149,7 @@
               </div>
               <% if (canPreview) { %>
                 <div style="flex: 0 0 auto;">
-                  <img src="<%= v %>" alt="preview" style="max-width: 160px; max-height: 120px; border-radius: 12px; border: 1px solid rgba(168, 175, 143, 0.25);" />
+                  <img src="<%= previewSrc %>" alt="preview" style="max-width: 160px; max-height: 120px; border-radius: 12px; border: 1px solid rgba(168, 175, 143, 0.25);" />
                 </div>
               <% } %>
             </div>

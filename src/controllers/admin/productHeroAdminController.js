@@ -5,6 +5,7 @@ const { omitEmptyImagePathsOnPut } = require('../../utils/omitEmptyImagePathsOnP
 
 const listFields = [
   { key: 'id', label: '編號' },
+  { key: 'hero_image_path', label: '商品圖', type: 'image' },
   { key: 'eyebrow', label: '上方小標' },
   { key: 'title', label: '主標題' },
   { key: 'created_at', label: '建立時間' },

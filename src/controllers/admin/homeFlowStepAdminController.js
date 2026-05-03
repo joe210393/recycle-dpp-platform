@@ -1,9 +1,11 @@
 const { createAdminCrudController } = require('./crudControllerFactory');
 const { homeFlowStepService } = require('../../services/homeFlowStepService');
 const { preprocessEnsureNonEmpty } = require('../../utils/preprocessEnsureNonEmpty');
+const { omitEmptyImagePathsOnPut } = require('../../utils/omitEmptyImagePathsOnPut');
 
 const listFields = [
   { key: 'id', label: 'ID' },
+  { key: 'icon_path', label: '圖示', type: 'image' },
   { key: 'title', label: '步驟標題' },
   { key: 'sort_order', label: '顯示順序' },
 ];

@@ -13,6 +13,10 @@ function createAdminCrudController({
     return sanitizeFormBody(data);
   }
 
+  // 含圖片欄位時，存檔後導回編輯頁能立刻看到新預覽；否則回列表頁。
+  const hasImageField = (fields) =>
+    Array.isArray(fields) && fields.some((f) => f && f.type === 'image');
+
   async function list(req, res, next) {
     try {
       const limit = Number(req.query.limit || 20);
@@ -44,6 +48,7 @@ function createAdminCrudController({
         formFields: resolvedFormFields,
         record: typeof newRecord === 'function' ? newRecord(req) : newRecord,
         mode: 'create',
+        query: req.query,
       });
     } catch (err) {
       return next(err);
@@ -52,10 +57,19 @@ function createAdminCrudController({
 
   async function create(req, res, next) {
     try {
+      if (req.uploadError) {
+        throw new Error(req.uploadError);
+      }
       const preprocessed = await preprocess(req.body, req);
       const data = sanitizeBody(preprocessed);
-      await service.create(data);
-      return res.redirect(`/admin/${resourceSlug}`);
+      const result = await service.create(data);
+      const resolvedFormFields =
+        typeof formFields === 'function' ? await formFields(req, null) : formFields;
+      // 有圖片欄位時導回編輯頁，方便立即確認預覽；否則回列表
+      if (result && result.id && hasImageField(resolvedFormFields)) {
+        return res.redirect(`/admin/${resourceSlug}/${result.id}/edit?saved=1`);
+      }
+      return res.redirect(`/admin/${resourceSlug}?saved=1`);
     } catch (err) {
       const resolvedFormFields =
         typeof formFields === 'function' ? await formFields(req, null) : formFields;
@@ -70,6 +84,7 @@ function createAdminCrudController({
         record,
         mode: 'create',
         error: err && err.message ? err.message : '發生錯誤',
+        query: req.query,
       });
     }
   }
@@ -87,6 +102,7 @@ function createAdminCrudController({
         formFields: resolvedFormFields,
         record,
         mode: 'edit',
+        query: req.query,
       });
     } catch (err) {
       return next(err);
@@ -95,11 +111,20 @@ function createAdminCrudController({
 
   async function update(req, res, next) {
     try {
+      if (req.uploadError) {
+        throw new Error(req.uploadError);
+      }
       const id = req.params.id;
       const preprocessed = await preprocess(req.body, req);
       const data = sanitizeBody(preprocessed);
       await service.update(id, data);
-      return res.redirect(`/admin/${resourceSlug}`);
+      const resolvedFormFields =
+        typeof formFields === 'function' ? await formFields(req, null) : formFields;
+      // 有圖片欄位時導回編輯頁，方便立即確認預覽；否則回列表
+      if (hasImageField(resolvedFormFields)) {
+        return res.redirect(`/admin/${resourceSlug}/${id}/edit?saved=1`);
+      }
+      return res.redirect(`/admin/${resourceSlug}?saved=1`);
     } catch (err) {
       const id = req.params.id;
       let record = {};
@@ -119,6 +144,7 @@ function createAdminCrudController({
         record: merged,
         mode: 'edit',
         error: err && err.message ? err.message : '發生錯誤',
+        query: req.query,
       });
     }
   }
@@ -144,4 +170,3 @@ function createAdminCrudController({
 }
 
 module.exports = { createAdminCrudController, sanitizeFormBody };
-

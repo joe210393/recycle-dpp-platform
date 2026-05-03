@@ -5,6 +5,7 @@ const { omitEmptyImagePathsOnPut } = require('../../utils/omitEmptyImagePathsOnP
 
 const listFields = [
   { key: 'id', label: 'ID' },
+  { key: 'hero_image_path', label: '主視覺', type: 'image' },
   { key: 'title', label: '主標題' },
   { key: 'eyebrow', label: '上方小標' },
   { key: 'primary_button_text', label: '主按鈕文字' },
