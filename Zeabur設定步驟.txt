@@ -1,30 +1,23 @@
 SENWEI · Zeabur 環境變數（你只要貼一次）
 
-你無法從 Git 自動帶密碼上雲，請照下面做「一次」即可。
+1) 本機在專案根目錄備好 `.env`（可從 `.env.example` 複製並填入密碼；`.env` 不會進 Git）。
 
-1) 在本機專案目錄執行（會印出整份設定）：
+2) 產生給 Zeabur 貼上的內容（會略過 PORT、略過註解）：
    npm run zeabur:print-env
 
-   或在 Mac 直接複製到剪貼簿：
+   或在 Mac 複製到剪貼簿：
    npm run zeabur:print-env | pbcopy
 
-2) 打開 Zeabur → 專案 SENWEI → 服務「recycle-dpp-platform」→「環境變數」
-   → 點「Edit as Raw」（批次編輯）
+3) Zeabur → SENWEI → recycle-dpp-platform → 環境變數 →「Edit as Raw」
+   貼上 → 儲存 → 重新部署。
 
-3) 把剪貼簿內容整段貼進去 → 儲存 → 觸發重新部署
+   【502】刪除使用者變數裡的 PORT=3000；讓平台注入 PORT，或依程式在未注入時聽 8080。
 
-   【若出現全站 502】到「環境變數」刪除或清空「PORT」這一項，讓 Zeabur
-   自動注入埠號；若平台沒注入 PORT，新版本程式會在 Zeabur 上預設聽 8080。
-   （切勿自訂 PORT=3000，多半會與閘道不一致。）
+4) Logs 應有：[bootstrap] DB target ... database=zeabur
+   與 listening on http://0.0.0.0:...
 
-4) 部署完成後看 Logs，應出現：
-   [bootstrap] DB target host=... database=zeabur
-   以及 [recycle-dpp-platform] listening on http://0.0.0.0:XXXX（XXXX 多為 8080）
-   若 database= 不是 zeabur，請檢查貼上的 MYSQL_DATABASE。
+5) UPLOAD_DIR=/data 須與硬碟掛載路徑一致。預覽 404 請在同頁重新上傳圖片。
 
-5) 上傳圖片需與硬碟掛載一致：UPLOAD_DIR=/data（已含在 .env.zeabur）。若後台預覽 404，
-   代表 DB 裡的路徑還在但實體檔已不在（例如重部署前檔寫在容器暫存層）— 請在同頁重新上傳一次。
+6) lockdown-install.js / SES 多為擴充或 Zeabur 站台腳本，與本專案無關。
 
-6) 瀏覽器 Console 若出現 lockdown-install.js / SES，多為擴充套件或 Zeabur 站台腳本，與本專案無關。
-
-※ .env.zeabur 不要提交 Git（已在 .gitignore）。密碼若曾外流請在 Zeabur MySQL 裡改密碼後更新面板變數。
+※ 密碼曾外流請改 MySQL 密碼並更新 .env 與 Zeabur 變數。
