@@ -61,6 +61,7 @@ const routes = [
   ['about-hero', './aboutHeroRoutes'],
   ['product-hero', './productHeroRoutes'],
   ['passport-hero', './passportHeroRoutes'],
+  ['debug', './debugRoutes'],
 ];
 
 for (const [basePath, file] of routes) {
