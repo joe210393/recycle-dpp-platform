@@ -54,9 +54,9 @@ async function ensureSchema() {
 // 先補齊 schema 再 listen，避免舊 DB 未跑 migration 時 API 先 500
 ensureSchema()
   .then(() => {
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       // eslint-disable-next-line no-console
-      console.log(`[recycle-dpp-platform] listening on http://localhost:${PORT}`);
+      console.log(`[recycle-dpp-platform] listening on http://0.0.0.0:${PORT}`);
     });
   })
   .catch((err) => {

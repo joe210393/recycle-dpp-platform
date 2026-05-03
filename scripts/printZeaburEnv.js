@@ -1,8 +1,12 @@
 /* eslint-disable no-console */
 /**
- * 輸出 .env.zeabur 全文，方便複製到 Zeabur → 環境變數 →「Edit as Raw」。
+ * 輸出 .env.zeabur 內容，供複製到 Zeabur → 環境變數 →「Edit as Raw」。
+ *
+ * 會自動略過 PORT= 這一行：Zeabur 會注入正確的 PORT（多為 8080），若貼上
+ * PORT=3000 會蓋掉平台變數，Node 監聽錯誤埠 → 全站 502 Bad Gateway。
+ *
  * 使用：npm run zeabur:print-env
- * macOS 一鍵進剪貼簿：npm run zeabur:print-env | pbcopy
+ * macOS：npm run zeabur:print-env | pbcopy
  */
 const fs = require('fs');
 const path = require('path');
@@ -14,4 +18,14 @@ if (!fs.existsSync(p)) {
   );
   process.exit(1);
 }
-process.stdout.write(fs.readFileSync(p, 'utf8'));
+
+const raw = fs.readFileSync(p, 'utf8');
+const lines = raw.split(/\r?\n/);
+const out = [];
+out.push('# Zeabur：勿設定 PORT，由平台自動注入（自行貼 PORT=3000 會導致 502）');
+for (const line of lines) {
+  if (/^\s*PORT\s*=/i.test(line)) continue;
+  out.push(line);
+}
+process.stdout.write(out.join('\n'));
+if (!raw.endsWith('\n')) process.stdout.write('\n');

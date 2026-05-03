@@ -13,8 +13,12 @@ SENWEI · Zeabur 環境變數（你只要貼一次）
 
 3) 把剪貼簿內容整段貼進去 → 儲存 → 觸發重新部署
 
+   【若出現全站 502】到「環境變數」刪除或清空「PORT」這一項，讓 Zeabur
+   自動注入埠號（貼了 PORT=3000 會蓋掉平台設定，反向代理連不到 App）。
+
 4) 部署完成後看 Logs，應出現：
    [bootstrap] DB target host=... database=zeabur
+   以及 [recycle-dpp-platform] listening on http://0.0.0.0:XXXX（XXXX 多為 8080）
    若 database= 不是 zeabur，請檢查貼上的 MYSQL_DATABASE。
 
 5) 上傳圖片需與硬碟掛載一致：UPLOAD_DIR=/data（已含在 .env.zeabur）
