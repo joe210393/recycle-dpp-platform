@@ -62,20 +62,12 @@
 <% } %>
 
   <% 
-    // 含檔案欄位時用 POST /:id/update，不依賴 method-override（multipart 時 body._method 尚未解析）
+    // 圖片改由 POST /admin/api/media 先上傳，表單僅送 urlencoded，可用 ?_method=PUT
     const editFormAction = mode === 'edit'
-      ? (hasImageUpload
-          ? `/admin/${resourceSlug}/${record.id}/update`
-          : `/admin/${resourceSlug}/${record.id}?_method=PUT`)
+      ? `/admin/${resourceSlug}/${record.id}?_method=PUT`
       : `/admin/${resourceSlug}`;
   %>
-<form
-  method="POST"
-  action="<%= editFormAction %>"
-  <%= hasImageUpload ? 'enctype="multipart/form-data"' : '' %>>
-  <% if (mode === 'edit' && !hasImageUpload) { %>
-    <input type="hidden" name="_method" value="PUT" />
-  <% } %>
+<form method="POST" action="<%= editFormAction %>">
 
   <div class="admin-form-grid">
     <% for (const field of formFields) { %>
@@ -132,15 +124,15 @@
                 <div style="margin-bottom: 8px;">
                   <input
                     type="file"
-                    name="<%= field.key %>_file"
                     accept="image/*"
                     data-image-file-input
                     <%= field.readonly ? 'disabled' : '' %>
                   />
                   <div class="help" style="margin-top: 4px;">
-                    選檔後，下方會顯示「✓ 已選擇 …」與「待上傳預覽」，再按「儲存」上傳。<br />
-                    單檔上限 20MB，僅接受圖片。<strong>若按儲存後下方網址欄位沒變，代表檔案未送達伺服器</strong>。
+                    選檔後會<strong>自動上傳</strong>到伺服器，成功後下方網址欄會更新；再按「儲存」寫入資料庫。<br />
+                    亦可直接貼上圖片網址或 <code style="font-size:11px;">/uploads/</code> 路徑。單檔上限 20MB，僅接受圖片。
                   </div>
+                  <div data-async-upload-status style="display: none; margin-top: 8px;"></div>
                   <div data-client-preview-area></div>
                 </div>
                 <input
@@ -157,6 +149,7 @@
                 <% if (canPreview) { %>
                   <div style="width: 200px; min-height: 150px;">
                     <img
+                      data-stored-preview-img
                       src="<%= previewSrc %>"
                       alt="preview"
                       style="width: 200px; height: 150px; object-fit: contain; background: #f4f4ee; border-radius: 12px; border: 1px solid rgba(168, 175, 143, 0.4); padding: 4px;"
@@ -229,44 +222,126 @@
       toggleFields();
     })();
 
-    // 選好檔案就「在送出前」顯示客戶端預覽 + 檔名 + 大小，
-    // 讓使用者 100% 確認檔案有被瀏覽器抓到，避免「以為上傳了但其實沒選到」。
+    // 圖片：選檔後 POST /admin/api/media，成功後填入網址欄（表單儲存不再送 multipart）
     (function () {
+      var MEDIA_API = '/admin/api/media';
       function fmtMB(bytes) {
         return (bytes / 1024 / 1024).toFixed(2) + ' MB';
       }
       document.addEventListener('change', function (e) {
         var t = e.target;
         if (!t || !t.matches || !t.matches('input[type=file][data-image-file-input]')) return;
-        var area = t.closest('.image-field') && t.closest('.image-field').querySelector('[data-client-preview-area]');
-        if (!area) return;
-        area.innerHTML = '';
+        if (t.disabled) return;
+        var wrap = t.closest('.image-field');
+        if (!wrap) return;
+        var textInput = wrap.querySelector('input[type="text"]');
+        var area = wrap.querySelector('[data-client-preview-area]');
+        var statusEl = wrap.querySelector('[data-async-upload-status]');
+        var storedImg = wrap.querySelector('[data-stored-preview-img]');
+        if (!textInput) return;
+
+        if (area) area.innerHTML = '';
+        if (statusEl) {
+          statusEl.textContent = '';
+          statusEl.style.display = 'none';
+        }
+
         var file = t.files && t.files[0];
         if (!file) return;
-        var sizeBytes = file.size;
+
         var maxBytes = 20 * 1024 * 1024;
-        var note = document.createElement('div');
-        note.style.cssText = 'margin-top: 10px; padding: 10px 12px; border-radius: 10px; font-size: 13px;';
-        var ok = sizeBytes <= maxBytes && /^image\//i.test(file.type);
-        note.style.background = ok ? 'rgba(244, 250, 244, 0.95)' : 'rgba(255, 248, 248, 0.95)';
-        note.style.border = '1px solid ' + (ok ? 'rgba(90, 140, 90, 0.4)' : 'rgba(180, 90, 90, 0.4)');
-        note.style.color = ok ? '#2f5b34' : '#6a3333';
-        var msg = ok
-          ? ('✓ 已選擇：' + file.name + '（' + fmtMB(sizeBytes) + '，' + (file.type || '未知格式') + '）— 按下「儲存」即會上傳')
-          : (sizeBytes > maxBytes
-              ? ('✗ 檔案過大：' + fmtMB(sizeBytes) + '（上限 20MB），請先壓縮再上傳')
-              : ('✗ 不支援的格式：' + (file.type || '未知') + '，僅接受 image/*'));
-        note.innerHTML = '<div style="font-weight:700;">' + msg + '</div>';
-        if (ok && /^image\//i.test(file.type)) {
-          var img = document.createElement('img');
-          img.alt = '待上傳預覽';
-          img.style.cssText = 'margin-top: 8px; width: 200px; height: 150px; object-fit: contain; background: #fff; border-radius: 8px; border: 1px solid rgba(168, 175, 143, 0.4); padding: 4px;';
-          var url = URL.createObjectURL(file);
-          img.src = url;
-          img.onload = function () { URL.revokeObjectURL(url); };
-          note.appendChild(img);
+        var sizeOk = file.size <= maxBytes;
+        var typeOk = /^image\//i.test(file.type);
+        if (!sizeOk || !typeOk) {
+          if (statusEl) {
+            statusEl.style.display = 'block';
+            statusEl.style.background = 'rgba(255, 248, 248, 0.95)';
+            statusEl.style.border = '1px solid rgba(180, 90, 90, 0.4)';
+            statusEl.style.color = '#6a3333';
+            statusEl.style.padding = '8px 10px';
+            statusEl.style.borderRadius = '8px';
+            statusEl.style.fontSize = '13px';
+            statusEl.textContent = !sizeOk
+              ? ('✗ 檔案過大：' + fmtMB(file.size) + '（上限 20MB）')
+              : ('✗ 不支援的格式：' + (file.type || '未知') + '，僅接受圖片');
+          }
+          t.value = '';
+          return;
         }
-        area.appendChild(note);
+
+        if (area) {
+          var localWrap = document.createElement('div');
+          localWrap.style.cssText = 'margin-top: 10px; padding: 10px 12px; border-radius: 10px; font-size: 13px; background: rgba(244, 250, 244, 0.95); border: 1px solid rgba(90, 140, 90, 0.4); color: #2f5b34;';
+          localWrap.innerHTML = '<div style="font-weight:700;">✓ 已選擇：' + file.name + '（' + fmtMB(file.size) + '）— 本機預覽</div>';
+          var pv = document.createElement('img');
+          pv.alt = '本機預覽';
+          pv.style.cssText = 'margin-top: 8px; width: 200px; height: 150px; object-fit: contain; background: #fff; border-radius: 8px; border: 1px solid rgba(168, 175, 143, 0.4); padding: 4px;';
+          var blobUrl = URL.createObjectURL(file);
+          pv.src = blobUrl;
+          pv.onload = function () { URL.revokeObjectURL(blobUrl); };
+          localWrap.appendChild(pv);
+          area.appendChild(localWrap);
+        }
+
+        if (statusEl) {
+          statusEl.style.display = 'block';
+          statusEl.style.background = 'rgba(240, 248, 255, 0.95)';
+          statusEl.style.border = '1px solid rgba(80, 120, 180, 0.35)';
+          statusEl.style.color = '#234';
+          statusEl.style.padding = '8px 10px';
+          statusEl.style.borderRadius = '8px';
+          statusEl.style.fontSize = '13px';
+          statusEl.textContent = '上傳中…';
+        }
+
+        var fd = new FormData();
+        fd.append('file', file);
+
+        fetch(MEDIA_API, { method: 'POST', body: fd, credentials: 'same-origin' })
+          .then(function (r) {
+            return r.text().then(function (txt) {
+              var j = {};
+              try {
+                j = txt ? JSON.parse(txt) : {};
+              } catch (err) { /* ignore */ }
+              return { ok: r.ok, status: r.status, body: j };
+            });
+          })
+          .then(function (result) {
+            if (!result.ok) {
+              var errMsg = (result.body && result.body.error) ? result.body.error : ('上傳失敗（' + result.status + '）');
+              throw new Error(errMsg);
+            }
+            var url = result.body && result.body.url;
+            if (!url) throw new Error('伺服器回應格式異常');
+            textInput.value = url;
+            textInput.dispatchEvent(new Event('input', { bubbles: true }));
+            if (statusEl) {
+              statusEl.style.background = 'rgba(244, 250, 244, 0.95)';
+              statusEl.style.border = '1px solid rgba(90, 140, 90, 0.4)';
+              statusEl.style.color = '#2f5b34';
+              statusEl.textContent = '✓ 已上傳，請按「儲存」將網址寫入資料庫';
+            }
+            if (storedImg) {
+              storedImg.style.display = '';
+              var bust = url.indexOf('?') >= 0 ? '&' : '?';
+              storedImg.src = url + bust + 'v=' + encodeURIComponent(String(Date.now()));
+            }
+            var missing = wrap.querySelector('[data-img-missing]');
+            if (missing) missing.style.display = 'none';
+          })
+          .catch(function (err) {
+            if (statusEl) {
+              statusEl.style.display = 'block';
+              statusEl.style.background = 'rgba(255, 248, 248, 0.95)';
+              statusEl.style.border = '1px solid rgba(180, 90, 90, 0.4)';
+              statusEl.style.color = '#6a3333';
+              statusEl.textContent = '✗ ' + (err && err.message ? err.message : '上傳失敗');
+            }
+          })
+          .finally(function () {
+            t.value = '';
+          });
       });
     })();
   </script>

@@ -40,6 +40,9 @@ router.get('/', (req, res) => {
   })();
 });
 
+// eslint-disable-next-line global-require
+router.use('/api', require('./mediaApiRoutes'));
+
 const routes = [
   ['recyclers', './recyclersRoutes'],
   ['recycled-items', './recycledItemsRoutes'],

@@ -106,4 +106,4 @@ function imageUpload(keys = []) {
   ];
 }
 
-module.exports = { imageUpload };
+module.exports = { imageUpload, toFriendlyUploadError };
