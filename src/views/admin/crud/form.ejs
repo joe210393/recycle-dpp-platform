@@ -155,7 +155,20 @@
               <div style="flex: 0 0 auto;">
                 <div style="font-size: 12px; color: #6b6f5d; margin-bottom: 4px;">目前已儲存的圖片：</div>
                 <% if (canPreview) { %>
-                  <img src="<%= previewSrc %>" alt="preview" style="width: 200px; height: 150px; object-fit: contain; background: #f4f4ee; border-radius: 12px; border: 1px solid rgba(168, 175, 143, 0.4); padding: 4px;" />
+                  <div style="width: 200px; min-height: 150px;">
+                    <img
+                      src="<%= previewSrc %>"
+                      alt="preview"
+                      style="width: 200px; height: 150px; object-fit: contain; background: #f4f4ee; border-radius: 12px; border: 1px solid rgba(168, 175, 143, 0.4); padding: 4px;"
+                      onerror="this.style.display='none'; var m=this.parentNode.querySelector('[data-img-missing]'); if (m) { m.style.display='flex'; }"
+                    />
+                    <div
+                      data-img-missing
+                      style="display: none; width: 200px; min-height: 150px; align-items: center; justify-content: center; background: #fff8f0; border-radius: 12px; border: 1px dashed rgba(180, 120, 60, 0.45); color: #6a4a2a; font-size: 12px; text-align: center; padding: 10px; box-sizing: border-box;"
+                    >
+                      圖片網址存在但<strong>檔案找不到（404）</strong>。多半是重部署後舊檔不在硬碟，或曾未設定 <code style="font-size:11px;">UPLOAD_DIR=/data</code>。請重新選檔上傳並按儲存。
+                    </div>
+                  </div>
                 <% } else { %>
                   <div style="width: 200px; height: 150px; display: flex; align-items: center; justify-content: center; background: #f4f4ee; border-radius: 12px; border: 1px dashed rgba(168, 175, 143, 0.6); color: #888; font-size: 13px;">（尚未設定圖片）</div>
                 <% } %>

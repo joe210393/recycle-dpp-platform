@@ -31,6 +31,18 @@ if (process.env.ZEABUR_SERVICE_ID || process.env.ZEABUR_PROJECT_ID) {
   );
 }
 
+const fs = require('fs');
+const { getUploadDir } = require('./src/config/uploadDir');
+const uploadDirResolved = getUploadDir();
+try {
+  fs.mkdirSync(uploadDirResolved, { recursive: true });
+} catch (e) {
+  // eslint-disable-next-line no-console
+  console.error('[bootstrap] UPLOAD_DIR mkdir failed', uploadDirResolved, e && e.message);
+}
+// eslint-disable-next-line no-console
+console.log(`[bootstrap] UPLOAD_DIR=${uploadDirResolved} (static URL remains /uploads/...)`);
+
 const app = createApp();
 
 async function runMigrations() {
