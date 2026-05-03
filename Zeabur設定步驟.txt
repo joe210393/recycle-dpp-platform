@@ -1,0 +1,22 @@
+SENWEI · Zeabur 環境變數（你只要貼一次）
+
+你無法從 Git 自動帶密碼上雲，請照下面做「一次」即可。
+
+1) 在本機專案目錄執行（會印出整份設定）：
+   npm run zeabur:print-env
+
+   或在 Mac 直接複製到剪貼簿：
+   npm run zeabur:print-env | pbcopy
+
+2) 打開 Zeabur → 專案 SENWEI → 服務「recycle-dpp-platform」→「環境變數」
+   → 點「Edit as Raw」（批次編輯）
+
+3) 把剪貼簿內容整段貼進去 → 儲存 → 觸發重新部署
+
+4) 部署完成後看 Logs，應出現：
+   [bootstrap] DB target host=... database=zeabur
+   若 database= 不是 zeabur，請檢查貼上的 MYSQL_DATABASE。
+
+5) 上傳圖片需與硬碟掛載一致：UPLOAD_DIR=/data（已含在 .env.zeabur）
+
+※ .env.zeabur 不要提交 Git（已在 .gitignore）。密碼若曾外流請在 Zeabur MySQL 裡改密碼後更新面板變數。

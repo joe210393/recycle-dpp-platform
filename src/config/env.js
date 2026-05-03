@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('./loadEnv');
 
 function required(name, fallback) {
   const v = process.env[name];
