@@ -25,15 +25,8 @@ function isCrudUpdateRequest(req) {
 }
 
 function omitEmptyImagePathsOnPut(body, req, keys = []) {
-  if (!body || typeof body !== 'object') return body;
-  if (!isCrudUpdateRequest(req)) return body;
-  for (const k of keys) {
-    if (!Object.prototype.hasOwnProperty.call(body, k)) continue;
-    const v = body[k];
-    if (v == null || (typeof v === 'string' && v.trim() === '')) {
-      delete body[k];
-    }
-  }
+  // 移除原有的空值刪除邏輯，讓前端清空網址時能正確存入 NULL 並清除舊圖。
+  // 表單會帶入舊網址，若未選新檔也不會變成空字串，因此不會誤刪。
   return body;
 }
 

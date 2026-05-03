@@ -26,12 +26,12 @@ function buildCrudModel({ table, primaryKey = 'id', columns = [] }) {
   }
 
   /**
-   * 前台單一區塊內容：取 id 最小的一筆（與後台「第一筆／編號 1」一致）。
-   * listAll 為 DESC，若誤建多筆會變成取到最新一筆，常導致編輯 id=1 但前台仍顯示預設圖。
+   * 前台單一區塊內容：取最新的一筆（與後台列表第一筆一致）。
+   * 原為 ASC，若誤建多筆會導致編輯最新的一筆，前台卻仍顯示最舊（或預設）的圖片。
    */
   async function getFirstForPublic() {
     const pool = await getPool();
-    const sql = `SELECT ${selectColumns.join(', ')} FROM ${table} ORDER BY ${primaryKey} ASC LIMIT 1`;
+    const sql = `SELECT ${selectColumns.join(', ')} FROM ${table} ORDER BY ${primaryKey} DESC LIMIT 1`;
     const [rows] = await pool.query(sql);
     return rows[0] || null;
   }
