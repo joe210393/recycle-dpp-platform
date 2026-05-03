@@ -5,7 +5,31 @@ const { getPool } = require('./src/config/db');
 const { ensureIncrementalSchema } = require('./src/utils/ensureIncrementalSchema');
 const { spawn } = require('child_process');
 
-const PORT = process.env.PORT || 3000;
+/**
+ * - 本機：預設 3000。
+ * - Zeabur：平台應注入 PORT；若未注入，Git Node 服務的 reverse proxy 多半對準 8080，
+ *   若仍用 3000 會 502（你曾出現 listening on :3000 但閘道連不到）。
+ */
+function resolveListenPort() {
+  const raw = process.env.PORT;
+  if (raw !== undefined && String(raw).trim() !== '') {
+    const n = Number(raw);
+    return Number.isFinite(n) && n > 0 ? n : 3000;
+  }
+  if (process.env.ZEABUR_SERVICE_ID || process.env.ZEABUR_PROJECT_ID) {
+    return 8080;
+  }
+  return 3000;
+}
+
+const PORT = resolveListenPort();
+
+if (process.env.ZEABUR_SERVICE_ID || process.env.ZEABUR_PROJECT_ID) {
+  // eslint-disable-next-line no-console
+  console.log(
+    `[bootstrap] Zeabur runtime: PORT env=${process.env.PORT == null || String(process.env.PORT).trim() === '' ? '(unset → using ' + PORT + ')' : process.env.PORT}`
+  );
+}
 
 const app = createApp();
 
