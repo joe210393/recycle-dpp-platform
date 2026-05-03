@@ -25,6 +25,12 @@ async function runMigrations() {
 }
 
 async function ensureSchema() {
+  const env = require('./src/config/env');
+  // eslint-disable-next-line no-console
+  console.log(
+    `[bootstrap] DB target host=${env.db.host} port=${env.db.port} database=${env.db.name}`
+  );
+
   // If the DB is empty (fresh Zeabur), tables don't exist and the app would 500.
   // We detect that and run migrations automatically.
   const pool = await getPool();
