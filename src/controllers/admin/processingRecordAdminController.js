@@ -3,11 +3,12 @@ const { processingRecordService } = require('../../services/processingRecordServ
 const { recycledBatchService } = require('../../services/recycledBatchService');
 const { materialService } = require('../../services/materialService');
 const processingRecordWorkflowService = require('../../services/processingRecordWorkflowService');
+const { decorateRowsWithReferences } = require('../../utils/adminRelationLabels');
 
 const listFields = [
   { key: 'id', label: '編號' },
   { key: 'process_no', label: '處理單號' },
-  { key: 'recycled_batch_id', label: '回收批次 ID' },
+  { key: 'recycled_batch_label', label: '回收批次' },
   { key: 'quantity_used', label: '本次使用數量' },
   { key: 'process_method', label: '處理方式' },
   { key: 'process_date', label: '處理日期時間' },
@@ -19,7 +20,10 @@ async function list(req, res, next) {
     const limit = Number(req.query.limit || 20);
     const page = Number(req.query.page || 1);
     const offset = (page - 1) * limit;
-    const rows = await processingRecordService.list({ limit, offset });
+    const rows = await decorateRowsWithReferences(
+      await processingRecordService.list({ limit, offset }),
+      [{ sourceKey: 'recycled_batch_id', targetKey: 'recycled_batch_label', type: 'recycledBatch' }]
+    );
     return res.render('admin/layout', {
       view: 'crud/list',
       title: '處理紀錄',

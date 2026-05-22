@@ -1,11 +1,12 @@
 const { createAdminCrudController } = require('./crudControllerFactory');
 const { recycledBatchService } = require('../../services/recycledBatchService');
+const { decorateRowsWithReferences } = require('../../utils/adminRelationLabels');
 
 const listFields = [
   { key: 'id', label: '編號' },
   { key: 'batch_no', label: '回收批次號' },
-  { key: 'recycled_item_id', label: '回收物 ID' },
-  { key: 'recycler_id', label: '回收廠商 ID' },
+  { key: 'recycled_item_label', label: '回收物' },
+  { key: 'recycler_label', label: '回收廠商' },
   { key: 'received_date', label: '收料日期' },
   { key: 'quantity', label: '進貨數量' },
   { key: 'used_quantity', label: '已使用' },
@@ -91,5 +92,9 @@ module.exports = createAdminCrudController({
   service: recycledBatchService,
   listFields,
   formFields: getFormFields,
+  decorateRows: (rows) =>
+    decorateRowsWithReferences(rows, [
+      { sourceKey: 'recycled_item_id', targetKey: 'recycled_item_label', type: 'recycledItem' },
+      { sourceKey: 'recycler_id', targetKey: 'recycler_label', type: 'recycler' },
+    ]),
 });
-

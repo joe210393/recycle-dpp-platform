@@ -8,6 +8,7 @@ function createAdminCrudController({
   formFields,
   preprocess = (data) => data,
   newRecord = {},
+  decorateRows = (rows) => rows,
 }) {
   function sanitizeBody(data) {
     return sanitizeFormBody(data);
@@ -22,7 +23,7 @@ function createAdminCrudController({
       const limit = Number(req.query.limit || 20);
       const page = Number(req.query.page || 1);
       const offset = (page - 1) * limit;
-      const rows = await service.list({ limit, offset });
+      const rows = await decorateRows(await service.list({ limit, offset }), req);
       return res.render('admin/layout', {
         view: 'crud/list',
         title,

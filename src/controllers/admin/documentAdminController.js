@@ -1,49 +1,63 @@
 const { createAdminCrudController } = require('./crudControllerFactory');
 const { documentService } = require('../../services/documentService');
+const {
+  decorateDocumentTargetRows,
+  documentTargetTypes,
+  getDocumentTargetSelectFields,
+} = require('../../utils/adminRelationLabels');
 
 const listFields = [
   { key: 'id', label: 'ID' },
-  { key: 'target_type', label: '綁定類型' },
-  { key: 'target_id', label: '綁定對象 ID' },
+  { key: 'target_type_label', label: '綁定類型' },
+  { key: 'target_label', label: '綁定對象' },
   { key: 'document_type', label: '文件類型' },
   { key: 'title', label: '標題' },
   { key: 'visibility_level', label: '可見層級' },
   { key: 'created_at', label: '建立時間' },
 ];
 
-const formFields = [
-  {
-    key: 'target_type',
-    label: '綁定類型',
-    type: 'select',
-    options: [
-      { value: 'recycler', label: '回收廠商' },
-      { value: 'recycled_batch', label: '回收批次' },
-      { value: 'processing_record', label: '處理紀錄' },
-      { value: 'material', label: '材料' },
-      { value: 'material_batch', label: '材料批次' },
-      { value: 'product', label: '商品' },
-      { value: 'product_batch', label: '商品批次' },
-      { value: 'product_passport', label: '商品護照' },
-    ],
-  },
-  { key: 'target_id', label: '綁定對象 ID', type: 'number', required: true },
-  { key: 'document_type', label: '文件類型', required: true },
-  { key: 'title', label: '標題', required: true },
-  { key: 'file_path', label: '檔案路徑', required: true },
-  { key: 'summary', label: '摘要', type: 'textarea' },
-  {
-    key: 'visibility_level',
-    label: '可見層級',
-    type: 'select',
-    options: [
-      { value: 'consumer', label: '消費者' },
-      { value: 'b2b', label: '通路/夥伴' },
-      { value: 'audit', label: '稽核' },
-      { value: 'internal', label: '內部' },
-    ],
-  },
-];
+async function formFields(req, record) {
+  return [
+    {
+      key: 'target_type',
+      label: '綁定類型',
+      type: 'select',
+      options: [{ value: '', label: '請選擇綁定類型' }, ...documentTargetTypes],
+      required: true,
+    },
+    ...(await getDocumentTargetSelectFields(record)),
+    { key: 'document_type', label: '文件類型', required: true },
+    { key: 'title', label: '標題', required: true },
+    { key: 'file_path', label: '檔案路徑', required: true },
+    { key: 'summary', label: '摘要', type: 'textarea' },
+    {
+      key: 'visibility_level',
+      label: '可見層級',
+      type: 'select',
+      options: [
+        { value: 'consumer', label: '消費者' },
+        { value: 'b2b', label: '通路/夥伴' },
+        { value: 'audit', label: '稽核' },
+        { value: 'internal', label: '內部' },
+      ],
+    },
+  ];
+}
+
+function preprocess(data) {
+  const out = { ...data };
+  const selectedKey = out.target_type ? `target_id_${out.target_type}` : '';
+  if (selectedKey && out[selectedKey]) {
+    out.target_id = out[selectedKey];
+  }
+  for (const item of documentTargetTypes) {
+    delete out[`target_id_${item.value}`];
+  }
+  if (!out.target_id) {
+    throw new Error('請選擇綁定對象');
+  }
+  return out;
+}
 
 module.exports = createAdminCrudController({
   resourceSlug: 'documents',
@@ -51,5 +65,6 @@ module.exports = createAdminCrudController({
   service: documentService,
   listFields,
   formFields,
+  preprocess,
+  decorateRows: decorateDocumentTargetRows,
 });
-

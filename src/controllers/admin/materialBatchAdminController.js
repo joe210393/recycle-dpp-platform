@@ -1,49 +1,27 @@
 const { createAdminCrudController } = require('./crudControllerFactory');
 const { materialBatchService } = require('../../services/materialBatchService');
+const {
+  decorateRowsWithReferences,
+  getReferenceOptions,
+} = require('../../utils/adminRelationLabels');
 
 const listFields = [
   { key: 'id', label: 'ID' },
   { key: 'batch_no', label: '材料批次號' },
-  { key: 'material_id', label: '材料 ID' },
-  { key: 'processing_record_id', label: '處理紀錄 ID' },
-  { key: 'source_recycled_batch_id', label: '來源回收批次 ID' },
+  { key: 'material_label', label: '材料' },
+  { key: 'processing_record_label', label: '處理紀錄' },
+  { key: 'source_recycled_batch_label', label: '來源回收批次' },
   { key: 'produced_date', label: '製成日期' },
   { key: 'expiry_date', label: '有效日期' },
   { key: 'status', label: '狀態' },
 ];
 
 async function getFormFields(req, record) {
-  const { materialService } = require('../../services/materialService');
-  const { processingRecordService } = require('../../services/processingRecordService');
-  const { recycledBatchService } = require('../../services/recycledBatchService');
-
-  const [materials, processingRecords, recycledBatches] = await Promise.all([
-    materialService.listAll(),
-    processingRecordService.listAll(),
-    recycledBatchService.listAll(),
+  const [materialOptions, processingRecordOptions, recycledBatchOptions] = await Promise.all([
+    getReferenceOptions('material', '請選擇材料', '請先建立材料主檔'),
+    getReferenceOptions('processingRecord', '請選擇處理紀錄', '請先建立處理紀錄'),
+    getReferenceOptions('recycledBatch', '請選擇來源回收批次', '請先建立來源回收批次'),
   ]);
-
-  const materialOptions = materials.map((m) => ({
-    value: String(m.id),
-    label: `${m.name}（ID:${m.id}）`,
-  }));
-  if (materialOptions.length === 0) {
-    materialOptions.push({ value: '', label: '請先建立材料主檔' });
-  }
-  const processingRecordOptions = processingRecords.map((r) => ({
-    value: String(r.id),
-    label: `${r.process_no}（ID:${r.id}）`,
-  }));
-  if (processingRecordOptions.length === 0) {
-    processingRecordOptions.push({ value: '', label: '請先建立處理紀錄' });
-  }
-  const recycledBatchOptions = recycledBatches.map((b) => ({
-    value: String(b.id),
-    label: `${b.batch_no}（ID:${b.id}）`,
-  }));
-  if (recycledBatchOptions.length === 0) {
-    recycledBatchOptions.push({ value: '', label: '請先建立來源回收批次' });
-  }
 
   return [
     {
@@ -93,5 +71,18 @@ module.exports = createAdminCrudController({
   service: materialBatchService,
   listFields,
   formFields: getFormFields,
+  decorateRows: (rows) =>
+    decorateRowsWithReferences(rows, [
+      { sourceKey: 'material_id', targetKey: 'material_label', type: 'material' },
+      {
+        sourceKey: 'processing_record_id',
+        targetKey: 'processing_record_label',
+        type: 'processingRecord',
+      },
+      {
+        sourceKey: 'source_recycled_batch_id',
+        targetKey: 'source_recycled_batch_label',
+        type: 'recycledBatch',
+      },
+    ]),
 });
-

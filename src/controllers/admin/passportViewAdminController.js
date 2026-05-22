@@ -1,28 +1,40 @@
 const { createAdminCrudController } = require('./crudControllerFactory');
 const { passportViewService } = require('../../services/passportViewService');
 const { getDefaultConfig } = require('../../config/passportViews');
+const {
+  decorateRowsWithReferences,
+  getReferenceOptions,
+} = require('../../utils/adminRelationLabels');
 
 const listFields = [
   { key: 'id', label: 'ID' },
-  { key: 'product_passport_id', label: '商品護照 ID' },
+  { key: 'product_passport_label', label: '商品護照' },
   { key: 'view_type', label: '顯示版本' },
   { key: 'created_at', label: '建立時間' },
 ];
 
-const formFields = [
-  { key: 'product_passport_id', label: '商品護照 ID', type: 'number', required: true },
-  {
-    key: 'view_type',
-    label: '顯示版本',
-    type: 'select',
-    options: [
-      { value: 'consumer', label: '消費者' },
-      { value: 'b2b', label: '通路/夥伴' },
-      { value: 'audit', label: '稽核' },
-    ],
-  },
-  { key: 'config_json', label: '顯示設定（config_json，JSON）', type: 'textarea', required: true },
-];
+async function formFields() {
+  return [
+    {
+      key: 'product_passport_id',
+      label: '商品護照',
+      type: 'select',
+      options: await getReferenceOptions('productPassport', '請選擇商品護照', '請先建立商品護照'),
+      required: true,
+    },
+    {
+      key: 'view_type',
+      label: '顯示版本',
+      type: 'select',
+      options: [
+        { value: 'consumer', label: '消費者' },
+        { value: 'b2b', label: '通路/夥伴' },
+        { value: 'audit', label: '稽核' },
+      ],
+    },
+    { key: 'config_json', label: '顯示設定（config_json，JSON）', type: 'textarea', required: true },
+  ];
+}
 
 function preprocess(data) {
   const out = { ...data };
@@ -54,5 +66,12 @@ module.exports = createAdminCrudController({
   formFields,
   preprocess,
   newRecord,
+  decorateRows: (rows) =>
+    decorateRowsWithReferences(rows, [
+      {
+        sourceKey: 'product_passport_id',
+        targetKey: 'product_passport_label',
+        type: 'productPassport',
+      },
+    ]),
 });
-

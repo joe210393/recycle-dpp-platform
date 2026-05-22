@@ -84,7 +84,7 @@
             <div class="help"><%= field.helpText %></div>
           <% } %>
 
-          <% const rawVal = (record && record[field.key] !== undefined && record[field.key] !== null) ? record[field.key] : ''; %>
+          <% const rawVal = (record && record[field.key] !== undefined && record[field.key] !== null) ? record[field.key] : (field.defaultValue !== undefined && field.defaultValue !== null ? field.defaultValue : ''); %>
           <% const isDateObj = Object.prototype.toString.call(rawVal) === '[object Date]' && !isNaN(rawVal.getTime()); %>
           <% let displayValue; %>
           <% if (typeof rawVal === 'object' && rawVal !== null && !isDateObj) { %>
@@ -213,7 +213,27 @@
           var controller = document.querySelector('[name="' + key + '"]');
           if (!controller) return;
           var current = controller.type === 'checkbox' ? (controller.checked ? '1' : '0') : controller.value;
-          wrap.style.display = (String(current) === String(val)) ? '' : 'none';
+          var visible = String(current) === String(val);
+          wrap.style.display = visible ? '' : 'none';
+          var controls = wrap.querySelectorAll('input, select, textarea');
+          controls.forEach(function (control) {
+            if (!control.dataset.originalRequired) {
+              control.dataset.originalRequired = control.required ? '1' : '0';
+            }
+            if (visible) {
+              if (control.dataset.disabledByVisibility === '1') {
+                control.disabled = false;
+                control.dataset.disabledByVisibility = '0';
+              }
+              control.required = control.dataset.originalRequired === '1';
+            } else {
+              control.required = false;
+              if (!control.disabled) {
+                control.disabled = true;
+                control.dataset.disabledByVisibility = '1';
+              }
+            }
+          });
         });
       }
       document.addEventListener('change', function (e) {
@@ -351,4 +371,3 @@
     <a class="admin-btn" href="/admin/<%= resourceSlug %>">返回列表</a>
   </div>
 </form>
-
