@@ -6,6 +6,7 @@ const { getUploadDir } = require('./src/config/uploadDir');
 const publicRoutes = require('./src/routes/public');
 const adminRoutes = require('./src/routes/admin');
 const { errorMiddleware } = require('./src/middlewares/errorMiddleware');
+const { attachCurrentUser } = require('./src/middlewares/authMiddleware');
 
 function createApp() {
   const app = express();
@@ -46,6 +47,7 @@ function createApp() {
   app.use('/uploads', express.static(getUploadDir()));
   app.use('/exports', express.static(path.join(__dirname, 'exports')));
 
+  app.use(attachCurrentUser);
   app.use('/', publicRoutes);
   app.use('/admin', adminRoutes);
 
@@ -60,4 +62,3 @@ function createApp() {
 }
 
 module.exports = createApp;
-

@@ -59,6 +59,8 @@ const defaultPassportHero = {
   hero_image_path: '/assets/passport-illustration.svg',
 };
 
+router.use('/', require('./authRoutes'));
+
 router.get('/', async (req, res, next) => {
   try {
     // Important: on a fresh Zeabur DB, migrations might not have run yet.
@@ -198,4 +200,3 @@ router.post('/lookup/batch', async (req, res, next) => {
 });
 
 module.exports = router;
-

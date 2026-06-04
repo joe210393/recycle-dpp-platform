@@ -1,0 +1,69 @@
+<h1><%= mode === 'edit' ? '編輯帳號' : '新增帳號' %></h1>
+
+<% if (error) { %>
+  <div class="admin-card" style="border-color: rgba(180, 90, 90, 0.35); background: rgba(255, 248, 248, 0.9); margin-bottom: 16px;">
+    <%= error %>
+  </div>
+<% } %>
+
+<form
+  class="admin-card"
+  method="post"
+  action="<%= mode === 'edit' ? `/admin/users/${userRecord.id}?_method=PUT` : '/admin/users' %>">
+  <div class="admin-form-grid">
+    <label class="admin-field">
+      <div>帳號</div>
+      <input type="text" name="account" value="<%= values.account || '' %>" required />
+    </label>
+
+    <label class="admin-field">
+      <div>角色</div>
+      <select name="role" required>
+        <% roles.forEach((role) => { %>
+          <option value="<%= role %>" <%= values.role === role ? 'selected' : '' %>>
+            <%= roleLabels[role] || role %>
+          </option>
+        <% }) %>
+      </select>
+    </label>
+
+    <label class="admin-field">
+      <div>狀態</div>
+      <select name="status" required>
+        <% Object.keys(statusLabels).forEach((status) => { %>
+          <option value="<%= status %>" <%= values.status === status ? 'selected' : '' %>>
+            <%= statusLabels[status] %>
+          </option>
+        <% }) %>
+      </select>
+    </label>
+
+    <label class="admin-field">
+      <div>名稱</div>
+      <input type="text" name="display_name" value="<%= values.display_name || '' %>" />
+    </label>
+
+    <label class="admin-field">
+      <div>Email</div>
+      <input type="email" name="email" value="<%= values.email || '' %>" />
+    </label>
+
+    <label class="admin-field">
+      <div>電話</div>
+      <input type="text" name="phone" value="<%= values.phone || '' %>" />
+    </label>
+
+    <label class="admin-field">
+      <div><%= mode === 'edit' ? '新密碼' : '密碼' %></div>
+      <input type="password" name="password" autocomplete="new-password" <%= mode === 'new' ? 'required' : '' %> />
+      <% if (mode === 'edit') { %>
+        <div class="help">不變更密碼時可留空。</div>
+      <% } %>
+    </label>
+  </div>
+
+  <div class="admin-form-actions">
+    <button class="admin-btn admin-btn-primary" type="submit"><%= mode === 'edit' ? '儲存' : '建立' %></button>
+    <a class="admin-btn" href="/admin/users">返回列表</a>
+  </div>
+</form>

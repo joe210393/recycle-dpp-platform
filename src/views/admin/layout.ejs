@@ -22,6 +22,12 @@
           <a class="admin-home-link" href="/" style="background: transparent; border: 1px solid rgba(168, 175, 143, 0.35)"
             >前往前台</a
           >
+          <% if (currentUser) { %>
+            <span class="admin-user-badge"><%= currentUser.account %> / <%= currentUser.role %></span>
+            <form class="admin-logout-form" action="/logout" method="post">
+              <button class="admin-home-link admin-logout-button" type="submit">登出</button>
+            </form>
+          <% } %>
         </div>
 
         <nav class="admin-nav" aria-label="後台選單">
@@ -78,6 +84,13 @@
               <a href="/admin/about-hero">關於我們 Hero 區塊</a>
               <a href="/admin/product-hero">商品頁 Hero 區塊</a>
               <a href="/admin/passport-hero">商品護照 Hero 區塊</a>
+            </div>
+          </details>
+
+          <details>
+            <summary>帳號</summary>
+            <div class="flow-links">
+              <a href="/admin/users">帳號管理</a>
             </div>
           </details>
         </nav>

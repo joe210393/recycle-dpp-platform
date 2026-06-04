@@ -1,4 +1,5 @@
 const { getPool } = require('../config/db');
+const userService = require('../services/userService');
 
 /**
  * 以「實際連線」探測欄位是否存在（避免 information_schema 與預設 DB 名稱不一致）。
@@ -96,8 +97,11 @@ async function ensureIncrementalSchema() {
     );
   }
 
+  await userService.ensureUsersTable();
+  await userService.ensureDefaultAdmin();
+
   // eslint-disable-next-line no-console
-  console.log('[schema] incremental schema OK (quantity_used, quantity_produced)');
+  console.log('[schema] incremental schema OK (quantity_used, quantity_produced, users)');
 }
 
 module.exports = { ensureIncrementalSchema };

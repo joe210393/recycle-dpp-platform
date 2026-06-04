@@ -350,6 +350,29 @@ textarea { min-height: 120px; resize: vertical; }
   max-width: 470px;
   width: 100%;
 }
+.auth-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+  gap: 32px;
+  align-items: start;
+}
+.auth-links,
+.auth-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.auth-links a {
+  color: var(--sage-dark);
+  font-weight: 700;
+}
+.auth-error {
+  margin-bottom: 18px;
+  color: #8b4545;
+  background: rgba(255, 248, 248, 0.92);
+  border-color: rgba(180, 90, 90, 0.28);
+}
 .footer {
   background: #f0ede2;
   border-top: 1px solid rgba(168, 175, 143, 0.16);
@@ -385,7 +408,8 @@ textarea { min-height: 120px; resize: vertical; }
   .hero-grid,
   .grid-2,
   .product-showcase,
-  .login-layout {
+  .login-layout,
+  .auth-shell {
     grid-template-columns: 1fr;
   }
   .card-grid,

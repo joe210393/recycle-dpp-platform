@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>shop / sale 註冊｜SENWEI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container nav">
+        <a class="brand" href="/">
+          <img src="/assets/logo.jpg" alt="SENWEI logo" />
+          <span class="brand-name">SENWEI</span>
+        </a>
+        <nav class="nav-links">
+          <a href="/" data-nav>首頁</a>
+          <a href="/about" data-nav>關於我們</a>
+          <a href="/product" data-nav>商品頁</a>
+          <a href="/passport" data-nav>商品護照</a>
+          <a href="/login" data-nav>登入</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container auth-shell">
+        <section>
+          <span class="eyebrow">Register</span>
+          <h1 class="section-title">shop / sale 註冊</h1>
+        </section>
+
+        <section class="form-card">
+          <% if (error) { %>
+            <div class="result-card show auth-error"><%= error %></div>
+          <% } %>
+          <form class="form-grid" action="/register/shop-sale" method="post">
+            <label class="form-row">
+              <span>角色</span>
+              <select name="role" required>
+                <% staffRoles.forEach((role) => { %>
+                  <option value="<%= role %>" <%= values.role === role ? 'selected' : '' %>>
+                    <%= roleLabels[role] || role %>
+                  </option>
+                <% }) %>
+              </select>
+            </label>
+            <label class="form-row">
+              <span>帳號</span>
+              <input name="account" type="text" value="<%= values.account || '' %>" autocomplete="username" required />
+            </label>
+            <label class="form-row">
+              <span>名稱</span>
+              <input name="display_name" type="text" value="<%= values.display_name || '' %>" autocomplete="organization" />
+            </label>
+            <label class="form-row">
+              <span>Email</span>
+              <input name="email" type="email" value="<%= values.email || '' %>" autocomplete="email" />
+            </label>
+            <label class="form-row">
+              <span>電話</span>
+              <input name="phone" type="tel" value="<%= values.phone || '' %>" autocomplete="tel" />
+            </label>
+            <label class="form-row">
+              <span>密碼</span>
+              <input name="password" type="password" autocomplete="new-password" required />
+            </label>
+            <label class="form-row">
+              <span>確認密碼</span>
+              <input name="password_confirm" type="password" autocomplete="new-password" required />
+            </label>
+            <button class="btn btn-primary" type="submit">註冊</button>
+          </form>
+
+          <div class="auth-links">
+            <a href="/login">已有帳號</a>
+            <a href="/register/user">user 註冊</a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>帳號｜SENWEI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container nav">
+        <a class="brand" href="/">
+          <img src="/assets/logo.jpg" alt="SENWEI logo" />
+          <span class="brand-name">SENWEI</span>
+        </a>
+        <nav class="nav-links">
+          <a href="/" data-nav>首頁</a>
+          <a href="/about" data-nav>關於我們</a>
+          <a href="/product" data-nav>商品頁</a>
+          <a href="/passport" data-nav>商品護照</a>
+          <% if (user.role === 'admin') { %>
+            <a href="/admin" data-nav>後台</a>
+          <% } %>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container auth-shell">
+        <section>
+          <span class="eyebrow">Account</span>
+          <h1 class="section-title">帳號</h1>
+        </section>
+
+        <section class="form-card">
+          <div class="kv">
+            <strong>帳號</strong>
+            <span><%= user.account %></span>
+            <strong>角色</strong>
+            <span><%= roleLabels[user.role] || user.role %></span>
+            <strong>名稱</strong>
+            <span><%= user.display_name || '-' %></span>
+            <strong>Email</strong>
+            <span><%= user.email || '-' %></span>
+            <strong>電話</strong>
+            <span><%= user.phone || '-' %></span>
+            <strong>狀態</strong>
+            <span><%= user.status %></span>
+          </div>
+
+          <form class="auth-actions" action="/logout" method="post">
+            <button class="btn btn-secondary" type="submit">登出</button>
+          </form>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

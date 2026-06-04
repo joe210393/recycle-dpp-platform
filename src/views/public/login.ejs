@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>登入｜SENWEI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container nav">
+        <a class="brand" href="/">
+          <img src="/assets/logo.jpg" alt="SENWEI logo" />
+          <span class="brand-name">SENWEI</span>
+        </a>
+        <nav class="nav-links">
+          <a href="/" data-nav>首頁</a>
+          <a href="/about" data-nav>關於我們</a>
+          <a href="/product" data-nav>商品頁</a>
+          <a href="/passport" data-nav>商品護照</a>
+          <a href="/login" data-nav>登入</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="login-layout">
+      <section class="login-visual">
+        <div>
+          <span class="eyebrow">Login</span>
+          <h1>登入 SENWEI</h1>
+          <p>依帳號角色進入對應頁面。</p>
+        </div>
+      </section>
+
+      <section class="login-panel">
+        <div class="form-card">
+          <h2 class="section-title">帳號登入</h2>
+          <% if (error) { %>
+            <div class="result-card show auth-error"><%= error %></div>
+          <% } %>
+          <form class="form-grid" action="/login" method="post">
+            <input type="hidden" name="next" value="<%= next || '' %>" />
+            <label class="form-row">
+              <span>帳號</span>
+              <input
+                name="account"
+                type="text"
+                value="<%= account || '' %>"
+                autocomplete="username"
+                required
+              />
+            </label>
+            <label class="form-row">
+              <span>密碼</span>
+              <input name="password" type="password" autocomplete="current-password" required />
+            </label>
+            <button class="btn btn-primary" type="submit">登入</button>
+          </form>
+
+          <div class="auth-links">
+            <a href="/register/shop-sale">shop / sale 註冊</a>
+            <a href="/register/user">user 註冊</a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

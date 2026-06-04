@@ -2,6 +2,9 @@ const express = require('express');
 
 const router = express.Router();
 const { getPool } = require('../../config/db');
+const { requireAdmin } = require('../../middlewares/authMiddleware');
+
+router.use(requireAdmin);
 
 router.get('/', (req, res) => {
   // Keep it simple: do not block UI if DB is not configured yet.
@@ -64,6 +67,7 @@ const routes = [
   ['about-hero', './aboutHeroRoutes'],
   ['product-hero', './productHeroRoutes'],
   ['passport-hero', './passportHeroRoutes'],
+  ['users', './usersRoutes'],
   ['debug', './debugRoutes'],
 ];
 
@@ -78,4 +82,3 @@ for (const [basePath, file] of routes) {
 }
 
 module.exports = router;
-

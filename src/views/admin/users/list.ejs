@@ -1,0 +1,59 @@
+<h1>帳號管理</h1>
+
+<% if (typeof saved !== 'undefined' && saved) { %>
+  <div class="admin-card" style="border-color: rgba(90, 140, 90, 0.4); background: rgba(244, 250, 244, 0.9); margin-bottom: 16px;">
+    已儲存。
+  </div>
+<% } %>
+
+<div class="admin-toolbar">
+  <a class="admin-btn admin-btn-primary" href="/admin/users/new">新增帳號</a>
+</div>
+
+<div class="admin-table-wrap">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>帳號</th>
+        <th>角色</th>
+        <th>名稱</th>
+        <th>Email</th>
+        <th>電話</th>
+        <th>狀態</th>
+        <th>建立時間</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (!users || users.length === 0) { %>
+        <tr>
+          <td colspan="9">目前沒有帳號。</td>
+        </tr>
+      <% } %>
+      <% (users || []).forEach((row) => { %>
+        <tr>
+          <td><%= row.id %></td>
+          <td><%= row.account %></td>
+          <td><%= roleLabels[row.role] || row.role %></td>
+          <td><%= row.display_name || '-' %></td>
+          <td><%= row.email || '-' %></td>
+          <td><%= row.phone || '-' %></td>
+          <td><%= statusLabels[row.status] || row.status %></td>
+          <td><%= row.created_at || '-' %></td>
+          <td class="actions">
+            <a href="/admin/users/<%= row.id %>/edit">編輯</a>
+            <% if (!currentUser || Number(currentUser.id) !== Number(row.id)) { %>
+              <form
+                action="/admin/users/<%= row.id %>?_method=DELETE"
+                method="post"
+                onsubmit="return confirm('確定刪除此帳號？');">
+                <button class="admin-btn admin-btn-danger" type="submit">刪除</button>
+              </form>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

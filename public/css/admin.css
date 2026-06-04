@@ -76,6 +76,26 @@
   text-decoration: none;
   color: var(--heading);
 }
+.admin-user-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(168, 175, 143, 0.3);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.admin-logout-form {
+  margin: 0;
+}
+.admin-logout-button {
+  font: inherit;
+  border: 1px solid rgba(168, 175, 143, 0.35);
+  cursor: pointer;
+}
 
 .admin-nav {
   display: flex;
@@ -354,7 +374,8 @@
 }
 
 /* Form — title row inside <label> (crud + custom forms) */
-.admin-field label > div:first-child {
+.admin-field label > div:first-child,
+.admin-field > div:first-child {
   font-weight: 700;
   color: var(--heading);
   font-size: 0.88rem;
@@ -400,6 +421,7 @@
 .admin-field input[type="datetime-local"],
 .admin-field input[type="url"],
 .admin-field input[type="email"],
+.admin-field input[type="password"],
 .admin-field select,
 .admin-field textarea {
   width: 100%;
