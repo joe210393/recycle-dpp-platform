@@ -1,0 +1,17 @@
+<%
+  const signedInUser = (typeof currentUser !== 'undefined' && currentUser) ? currentUser : null;
+%>
+<% if (signedInUser) { %>
+  <a class="nav-account" href="/account" aria-label="目前登入帳號">
+    <span class="nav-account-name"><%= signedInUser.account %></span>
+    <span class="nav-account-role"><%= signedInUser.role %></span>
+  </a>
+  <% if (signedInUser.role === 'admin') { %>
+    <a href="/admin" data-nav>後台</a>
+  <% } %>
+  <form class="nav-logout-form" action="/logout" method="post">
+    <button class="nav-logout-button" type="submit">登出</button>
+  </form>
+<% } else { %>
+  <a href="/login" data-nav>登入</a>
+<% } %>
