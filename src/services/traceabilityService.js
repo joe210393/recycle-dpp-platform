@@ -161,13 +161,13 @@ async function getPassportDetailByCode(passportCode, viewType = 'consumer') {
   );
 
   // Documents attached to this passport.
+  // 目前不依 visibility_level 過濾：所有檢視都顯示全部綁定文件。
   const [docRows] = await pool.query(
     `SELECT id, document_type, title, file_path, summary, visibility_level, created_at
      FROM documents
      WHERE target_type = 'product_passport' AND target_id = ?
-       AND visibility_level = ?
      ORDER BY created_at DESC`,
-    [passport.id, viewType]
+    [passport.id]
   );
 
   return {

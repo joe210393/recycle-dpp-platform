@@ -35,7 +35,7 @@ async function formFields(req, record) {
             label: '文件附件（可複選）',
             type: 'multicheckbox',
             helpText:
-              '勾選要綁定到此護照的文件；取消勾選會解除綁定。前台依文件的「可見層級」決定顯示在哪個檢視（consumer / b2b / audit）。',
+              '勾選要綁定到此護照的文件；取消勾選會解除綁定。目前前台各檢視（consumer / b2b / audit）都會顯示全部綁定文件。',
             options: await listDocumentOptionsForPassport(record.id),
             emptyMessage: '目前沒有文件，請先到「文件附件」建立。',
           },

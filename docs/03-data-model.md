@@ -220,7 +220,7 @@ erDiagram
 | `summary` | 摘要 |
 | `visibility_level` | `consumer`, `b2b`, `audit`, `internal` |
 
-目前前台護照詳情只顯示 `target_type = product_passport` 且 `visibility_level` 等於 view type 的文件。
+目前前台護照詳情顯示 `target_type = product_passport` 的所有文件，暫不依 `visibility_level` 過濾（各檢視都看得到全部文件）。
 
 後台「商品護照」編輯頁提供文件複選：勾選的文件會改綁到該護照，取消勾選則解除綁定（target 設為 NULL）。文件建立時也可先不綁定。
 
