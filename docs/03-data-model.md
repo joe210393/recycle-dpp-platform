@@ -212,8 +212,8 @@ erDiagram
 
 | 欄位 | 說明 |
 | --- | --- |
-| `target_type` | 文件綁定類型 |
-| `target_id` | 文件綁定對象 ID |
+| `target_type` | 文件綁定類型，可為 NULL（未綁定） |
+| `target_id` | 文件綁定對象 ID，可為 NULL（未綁定） |
 | `document_type` | 文件類型 |
 | `title` | 文件標題 |
 | `file_path` | 檔案路徑 |
@@ -221,6 +221,8 @@ erDiagram
 | `visibility_level` | `consumer`, `b2b`, `audit`, `internal` |
 
 目前前台護照詳情只顯示 `target_type = product_passport` 且 `visibility_level` 等於 view type 的文件。
+
+後台「商品護照」編輯頁提供文件複選：勾選的文件會改綁到該護照，取消勾選則解除綁定（target 設為 NULL）。文件建立時也可先不綁定。
 
 ## 4. 護照顯示設定
 

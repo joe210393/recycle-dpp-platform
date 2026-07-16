@@ -97,6 +97,40 @@ async function ensureIncrementalSchema() {
     );
   }
 
+  // --- 025: documents.target_type / target_id 改為可 NULL（文件可暫時不綁定） ---
+  try {
+    const [docCols] = await pool.query(
+      "SHOW COLUMNS FROM documents WHERE Field IN ('target_type', 'target_id')"
+    );
+    const needsNullable =
+      docCols.length === 2 && docCols.some((c) => String(c.Null).toUpperCase() === 'NO');
+    if (needsNullable) {
+      // eslint-disable-next-line no-console
+      console.log('[schema] Making documents.target_type / target_id nullable ...');
+      await pool.query(
+        `ALTER TABLE documents
+         MODIFY target_type ENUM(
+           'recycler',
+           'recycled_batch',
+           'processing_record',
+           'material',
+           'material_batch',
+           'product',
+           'product_batch',
+           'product_passport'
+         ) NULL,
+         MODIFY target_id BIGINT UNSIGNED NULL`
+      );
+    }
+  } catch (e) {
+    if (e && (e.code === 'ER_NO_SUCH_TABLE' || e.errno === 1146)) {
+      // eslint-disable-next-line no-console
+      console.warn('[schema] documents table missing; skip nullable target');
+    } else {
+      throw e;
+    }
+  }
+
   await userService.ensureUsersTable();
   await userService.ensureDefaultAdmin();
 

@@ -22,8 +22,7 @@ async function formFields(req, record) {
       key: 'target_type',
       label: '綁定類型',
       type: 'select',
-      options: [{ value: '', label: '請選擇綁定類型' }, ...documentTargetTypes],
-      required: true,
+      options: [{ value: '', label: '不綁定（可稍後在商品護照編輯頁勾選綁定）' }, ...documentTargetTypes],
     },
     ...(await getDocumentTargetSelectFields(record)),
     { key: 'document_type', label: '文件類型', required: true },
@@ -52,6 +51,12 @@ function preprocess(data) {
   }
   for (const item of documentTargetTypes) {
     delete out[`target_id_${item.value}`];
+  }
+  // 允許不綁定：target 設為 NULL，之後可在商品護照編輯頁勾選綁定。
+  if (!out.target_type) {
+    out.target_type = null;
+    out.target_id = null;
+    return out;
   }
   if (!out.target_id) {
     throw new Error('請選擇綁定對象');
