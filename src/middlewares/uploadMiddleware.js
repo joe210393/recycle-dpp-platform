@@ -48,4 +48,23 @@ const upload = multer({
   },
 });
 
-module.exports = { upload, MAX_FILE_BYTES };
+/**
+ * 文件附件上傳：接受 PDF 與圖片（檢測報告、證明文件常見格式）。
+ */
+const documentUpload = multer({
+  storage,
+  limits: {
+    fileSize: MAX_FILE_BYTES,
+  },
+  fileFilter(req, file, cb) {
+    const mt = String(file.mimetype || '').toLowerCase();
+    if (!mt.startsWith('image/') && mt !== 'application/pdf') {
+      const err = new Error(`不支援的檔案類型「${file.mimetype || '未知'}」，僅接受 PDF 或圖片`);
+      err.code = 'UNSUPPORTED_FILE_TYPE';
+      return cb(err);
+    }
+    return cb(null, true);
+  },
+});
+
+module.exports = { upload, documentUpload, MAX_FILE_BYTES };

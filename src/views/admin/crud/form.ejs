@@ -171,6 +171,35 @@
           <% } else if (field.type === 'checkbox') { %>
             <input type="hidden" name="<%= field.key %>" value="0" />
             <input type="checkbox" name="<%= field.key %>" value="1" <%= String(rawVal) === '1' ? 'checked' : '' %> <%= field.readonly ? 'disabled' : '' %> />
+          <% } else if (field.type === 'file') { %>
+            <div class="doc-file-field">
+              <div style="margin-bottom: 8px;">
+                <input
+                  type="file"
+                  accept="<%= field.accept || 'application/pdf,image/*' %>"
+                  data-doc-file-input
+                  <%= field.readonly ? 'disabled' : '' %>
+                />
+                <div class="help" style="margin-top: 4px;">
+                  選檔後會<strong>自動上傳</strong>到伺服器，成功後下方路徑欄會更新；再按「儲存」寫入資料庫。<br />
+                  亦可直接貼上 <code style="font-size:11px;">/uploads/</code> 路徑或 http(s) 連結。單檔上限 20MB，接受 PDF 或圖片。
+                </div>
+                <div data-doc-upload-status style="display: none; margin-top: 8px;"></div>
+              </div>
+              <input
+                type="text"
+                name="<%= field.key %>"
+                value="<%= inputVal %>"
+                <%= field.required ? 'required' : '' %>
+                <%= field.readonly ? 'readonly' : '' %>
+                style="width: 100%;"
+              />
+              <% if (typeof inputVal === 'string' && inputVal.trim() && (inputVal.startsWith('/uploads/') || inputVal.startsWith('/exports/') || inputVal.startsWith('http'))) { %>
+                <div style="margin-top: 6px;">
+                  <a href="<%= inputVal %>" target="_blank" rel="noreferrer" style="font-size: 13px;">開啟目前檔案</a>
+                </div>
+              <% } %>
+            </div>
           <% } else if (field.type === 'multicheckbox') { %>
             <div style="display: grid; gap: 6px; max-height: 280px; overflow-y: auto; border: 1px solid rgba(168, 175, 143, 0.35); border-radius: 10px; padding: 10px 12px; background: #fff;">
               <% if (!(field.options || []).length) { %>
@@ -260,6 +289,81 @@
         if (e.target && e.target.name) toggleFields();
       });
       toggleFields();
+    })();
+
+    // 文件（PDF/圖片）：選檔後 POST /admin/api/media/document，成功後填入路徑欄
+    (function () {
+      var DOC_API = '/admin/api/media/document';
+      document.addEventListener('change', function (e) {
+        var t = e.target;
+        if (!t || !t.matches || !t.matches('input[type=file][data-doc-file-input]')) return;
+        if (t.disabled) return;
+        var wrap = t.closest('.doc-file-field');
+        if (!wrap) return;
+        var textInput = wrap.querySelector('input[type="text"]');
+        var statusEl = wrap.querySelector('[data-doc-upload-status]');
+        if (!textInput) return;
+
+        function showStatus(kind, msg) {
+          if (!statusEl) return;
+          statusEl.style.display = 'block';
+          statusEl.style.padding = '8px 10px';
+          statusEl.style.borderRadius = '8px';
+          statusEl.style.fontSize = '13px';
+          if (kind === 'ok') {
+            statusEl.style.background = 'rgba(244, 250, 244, 0.95)';
+            statusEl.style.border = '1px solid rgba(90, 140, 90, 0.4)';
+            statusEl.style.color = '#2f5b34';
+          } else if (kind === 'err') {
+            statusEl.style.background = 'rgba(255, 248, 248, 0.95)';
+            statusEl.style.border = '1px solid rgba(180, 90, 90, 0.4)';
+            statusEl.style.color = '#6a3333';
+          } else {
+            statusEl.style.background = 'rgba(240, 248, 255, 0.95)';
+            statusEl.style.border = '1px solid rgba(80, 120, 180, 0.35)';
+            statusEl.style.color = '#234';
+          }
+          statusEl.textContent = msg;
+        }
+
+        var file = t.files && t.files[0];
+        if (!file) return;
+
+        var maxBytes = 20 * 1024 * 1024;
+        if (file.size > maxBytes) {
+          showStatus('err', '✗ 檔案過大：' + (file.size / 1024 / 1024).toFixed(2) + ' MB（上限 20MB）');
+          t.value = '';
+          return;
+        }
+
+        showStatus('info', '上傳中…');
+        var fd = new FormData();
+        fd.append('file', file);
+        fetch(DOC_API, { method: 'POST', body: fd, credentials: 'same-origin' })
+          .then(function (r) {
+            return r.text().then(function (txt) {
+              var j = {};
+              try { j = txt ? JSON.parse(txt) : {}; } catch (err) { /* ignore */ }
+              return { ok: r.ok, status: r.status, body: j };
+            });
+          })
+          .then(function (result) {
+            if (!result.ok) {
+              throw new Error((result.body && result.body.error) || ('上傳失敗（' + result.status + '）'));
+            }
+            var url = result.body && result.body.url;
+            if (!url) throw new Error('伺服器回應格式異常');
+            textInput.value = url;
+            textInput.dispatchEvent(new Event('input', { bubbles: true }));
+            showStatus('ok', '✓ 已上傳，請按「儲存」將路徑寫入資料庫');
+          })
+          .catch(function (err) {
+            showStatus('err', '✗ ' + (err && err.message ? err.message : '上傳失敗'));
+          })
+          .finally(function () {
+            t.value = '';
+          });
+      });
     })();
 
     // 圖片：選檔後 POST /admin/api/media，成功後填入網址欄（表單儲存不再送 multipart）

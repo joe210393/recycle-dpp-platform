@@ -156,13 +156,19 @@
                 <h3 style="margin: 24px 0 0; color: var(--heading);">文件列表</h3>
                 <ul class="doc-list">
                   <% for (const d of data.documents) { %>
+                    <%
+                      const fp = typeof d.file_path === 'string' ? d.file_path.trim() : '';
+                      const hasValidFile = fp && (fp.startsWith('/') || /^https?:\/\//i.test(fp));
+                    %>
                     <li>
                       <div><strong><%= d.title %></strong>（<%= d.document_type %>）</div>
                       <% if (d.summary) { %>
                         <div class="muted"><%= d.summary %></div>
                       <% } %>
-                      <% if (d.file_path) { %>
-                        <div style="margin-top: 6px;"><a href="<%= d.file_path %>" style="color: var(--sage-dark); font-weight: 600;">下載 / 查看</a></div>
+                      <% if (hasValidFile) { %>
+                        <div style="margin-top: 6px;"><a href="<%= fp %>" target="_blank" rel="noopener" style="color: var(--sage-dark); font-weight: 600;">下載 / 查看</a></div>
+                      <% } else { %>
+                        <div class="muted" style="margin-top: 6px;">檔案尚未上傳</div>
                       <% } %>
                     </li>
                   <% } %>

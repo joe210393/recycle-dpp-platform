@@ -27,7 +27,13 @@ async function formFields(req, record) {
     ...(await getDocumentTargetSelectFields(record)),
     { key: 'document_type', label: '文件類型', required: true },
     { key: 'title', label: '標題', required: true },
-    { key: 'file_path', label: '檔案路徑', required: true },
+    {
+      key: 'file_path',
+      label: '檔案（PDF / 圖片）',
+      type: 'file',
+      required: true,
+      helpText: '請選擇檔案上傳，或貼上已存在的檔案路徑。前台「下載 / 查看」會連到這個路徑。',
+    },
     { key: 'summary', label: '摘要', type: 'textarea' },
     {
       key: 'visibility_level',
