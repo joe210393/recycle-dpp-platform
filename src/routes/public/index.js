@@ -68,26 +68,18 @@ router.get('/', async (req, res, next) => {
   try {
     // Important: on a fresh Zeabur DB, migrations might not have run yet.
     // If tables don't exist, fall back to defaults to avoid 500.
-    let heroes = [];
-    let flowSteps = [];
-    let productHeroes = [];
-    try {
-      heroes = [await homeHeroService.getFirstForPublic()].filter(Boolean);
-    } catch (err) {
-      if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
-    }
-    try {
-      flowSteps = await homeFlowStepService.listAll();
-    } catch (err) {
-      if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
-    }
-
-    try {
-      const ph = await productHeroService.getFirstForPublic();
-      productHeroes = ph ? [ph] : [];
-    } catch (err) {
-      if (err && err.code !== 'ER_NO_SUCH_TABLE') throw err;
-    }
+    const ignoreMissingTable = (err) => {
+      if (err && err.code === 'ER_NO_SUCH_TABLE') return null;
+      throw err;
+    };
+    const [heroRow, flowStepsRows, productHeroRow] = await Promise.all([
+      homeHeroService.getFirstForPublic().catch(ignoreMissingTable),
+      homeFlowStepService.listAll().catch(ignoreMissingTable),
+      productHeroService.getFirstForPublic().catch(ignoreMissingTable),
+    ]);
+    const heroes = [heroRow].filter(Boolean);
+    const flowSteps = flowStepsRows || [];
+    const productHeroes = productHeroRow ? [productHeroRow] : [];
 
     const hero = heroes && heroes[0] ? heroes[0] : defaultHero;
     const productHero = productHeroes && productHeroes[0] ? productHeroes[0] : defaultProductHero;

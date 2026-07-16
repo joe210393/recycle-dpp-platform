@@ -20,11 +20,12 @@ router.get('/', (req, res) => {
         ['product_passports', 'productPassports'],
       ];
       const counts = {};
-      for (const [table, key] of tables) {
-        // eslint-disable-next-line no-await-in-loop
-        const [rows] = await pool.query(`SELECT COUNT(*) AS c FROM ${table}`);
-        counts[key] = rows[0].c;
-      }
+      await Promise.all(
+        tables.map(async ([table, key]) => {
+          const [rows] = await pool.query(`SELECT COUNT(*) AS c FROM ${table}`);
+          counts[key] = rows[0].c;
+        })
+      );
 
       return res.render('admin/layout', {
         view: 'dashboard',

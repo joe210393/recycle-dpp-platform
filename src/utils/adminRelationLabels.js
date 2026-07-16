@@ -211,19 +211,20 @@ async function decorateRowsWithReferences(rows, specs) {
 }
 
 async function getDocumentTargetSelectFields(record) {
-  const fields = [];
-  for (const item of documentTargetTypes) {
-    const refType = targetTypeToReference[item.value];
-    fields.push({
-      key: `target_id_${item.value}`,
-      label: `${item.label}對象`,
-      type: 'select',
-      options: await getReferenceOptions(refType, `請選擇${item.label}`, `請先建立${item.label}`),
-      required: true,
-      showWhenKey: 'target_type',
-      showWhenValue: item.value,
-    });
-  }
+  const fields = await Promise.all(
+    documentTargetTypes.map(async (item) => {
+      const refType = targetTypeToReference[item.value];
+      return {
+        key: `target_id_${item.value}`,
+        label: `${item.label}對象`,
+        type: 'select',
+        options: await getReferenceOptions(refType, `請選擇${item.label}`, `請先建立${item.label}`),
+        required: true,
+        showWhenKey: 'target_type',
+        showWhenValue: item.value,
+      };
+    })
+  );
 
   if (record && record.target_type && record.target_id) {
     const selectedKey = `target_id_${record.target_type}`;

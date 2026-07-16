@@ -13,6 +13,16 @@ function createApp() {
 
   app.set('view engine', 'ejs');
   app.set('views', path.join(__dirname, 'src', 'views'));
+  app.disable('x-powered-by');
+
+  // 沒設 NODE_ENV=production 時 Express 不會快取編譯後的模板，
+  // 每個請求都重新讀檔＋編譯 EJS。在正式環境（Zeabur）強制開啟。
+  const isProduction =
+    process.env.NODE_ENV === 'production' ||
+    Boolean(process.env.ZEABUR_SERVICE_ID || process.env.ZEABUR_PROJECT_ID);
+  if (isProduction) {
+    app.set('view cache', true);
+  }
 
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
@@ -43,8 +53,9 @@ function createApp() {
     return res.sendFile(path.join(__dirname, 'public', 'favicon.svg'));
   });
 
-  app.use(express.static(path.join(__dirname, 'public')));
-  app.use('/uploads', express.static(getUploadDir()));
+  // 靜態資源加上 Cache-Control：CSS/圖片重複瀏覽不必重抓（etag 仍會驗證更新）。
+  app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
+  app.use('/uploads', express.static(getUploadDir(), { maxAge: '7d' }));
   app.use('/exports', express.static(path.join(__dirname, 'exports')));
 
   app.use(attachCurrentUser);

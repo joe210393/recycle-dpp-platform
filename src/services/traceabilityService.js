@@ -101,16 +101,15 @@ async function getPassportDetailByCode(passportCode, viewType = 'consumer') {
   const passport = passportRows[0];
   if (!passport) return null;
 
+  // 後續四個查詢彼此獨立，並行執行減少累積延遲。
   // View config (consumer/b2b/audit) controls which sections to show.
-  const [viewRows] = await pool.query(
+  const viewQuery = pool.query(
     'SELECT view_type, config_json FROM passport_views WHERE product_passport_id = ? AND view_type = ? LIMIT 1',
     [passport.id, viewType]
   );
-  const viewRow = viewRows[0];
-  const config = viewRow ? ensureObject(viewRow.config_json) : getDefaultConfig(viewType);
 
   // Materials used by this product batch (link table = the most important bridge).
-  const [materialRows] = await pool.query(
+  const materialQuery = pool.query(
     `SELECT
       pbmb.id,
       pbmb.product_batch_id,
@@ -137,7 +136,7 @@ async function getPassportDetailByCode(passportCode, viewType = 'consumer') {
   );
 
   // Trace chain: for MVP we show unique recycler + recycled batch + processing records
-  const [traceRows] = await pool.query(
+  const traceQuery = pool.query(
     `SELECT
       r.id AS recycler_id,
       r.name AS recycler_name,
@@ -162,13 +161,22 @@ async function getPassportDetailByCode(passportCode, viewType = 'consumer') {
 
   // Documents attached to this passport.
   // 目前不依 visibility_level 過濾：所有檢視都顯示全部綁定文件。
-  const [docRows] = await pool.query(
+  const docQuery = pool.query(
     `SELECT id, document_type, title, file_path, summary, visibility_level, created_at
      FROM documents
      WHERE target_type = 'product_passport' AND target_id = ?
      ORDER BY created_at DESC`,
     [passport.id]
   );
+
+  const [[viewRows], [materialRows], [traceRows], [docRows]] = await Promise.all([
+    viewQuery,
+    materialQuery,
+    traceQuery,
+    docQuery,
+  ]);
+  const viewRow = viewRows[0];
+  const config = viewRow ? ensureObject(viewRow.config_json) : getDefaultConfig(viewType);
 
   return {
     passport,
