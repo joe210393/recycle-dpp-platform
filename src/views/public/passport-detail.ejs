@@ -1,167 +1,250 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>商品護照 - <%= data.passport.passport_code %></title>
-    <style>
-      body { font-family: Arial, Helvetica, sans-serif; margin: 16px; }
-      .card { border: 1px solid #ddd; border-radius: 6px; padding: 12px; margin-bottom: 12px; }
-      img { max-height: 180px; }
-      table { border-collapse: collapse; width: 100%; }
-      th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-      th { background: #f6f6f6; }
-      .muted { color:#666; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= data.passport.product_name %>｜商品護照｜SENWEI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
   </head>
   <body>
-    <p><a href="/">回首頁</a> / <a href="/products">商品列表</a></p>
+    <header class="header">
+      <div class="container nav">
+        <a class="brand" href="/">
+          <img src="/assets/logo.jpg" alt="SENWEI logo">
+          <span class="brand-name">SENWEI</span>
+        </a>
+        <nav class="nav-links">
+          <a href="/" data-nav>首頁</a>
+          <a href="/about" data-nav>關於我們</a>
+          <a href="/product" data-nav>商品頁</a>
+          <a href="/passport" data-nav class="active">商品護照</a>
+          <%- include('nav-auth') %>
+        </nav>
+      </div>
+    </header>
 
-    <% const show = (data.config && data.config.show) ? data.config.show : {}; %>
-    <% const traceShow = show.recyclersAndTrace || {}; %>
+    <main>
+      <% const show = (data.config && data.config.show) ? data.config.show : {}; %>
+      <% const traceShow = show.recyclersAndTrace || {}; %>
+      <%
+        function fmtDate(v) {
+          if (!v) return '';
+          var s = String(v);
+          var m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+          return m ? m[1] : s;
+        }
+      %>
 
-    <div class="card">
-      <% if (show.product && show.product.name) { %>
-        <h1 style="margin-top:0;"><%= data.passport.product_name %></h1>
-      <% } %>
-
-      <p class="muted">護照代碼：<%= data.passport.passport_code %></p>
-      <p><strong>分類：</strong><%= data.passport.product_category || '-' %></p>
-
-      <% if (show.product && show.product.productVersion) { %>
-        <p><strong>商品版本：</strong><%= data.passport.version_no %><% if (data.passport.version_name) { %>（<%= data.passport.version_name %>）<% } %></p>
-      <% } %>
-
-      <% if (show.product && show.product.productBatchNo) { %>
-        <p><strong>商品批次：</strong><%= data.passport.batch_no %></p>
-      <% } %>
-
-      <% if (show.product && show.product.mainImage && data.passport.product_main_image) { %>
-        <div style="margin:10px 0;">
-          <img src="<%= data.passport.product_main_image %>" alt="<%= data.passport.product_name %>" />
+      <section class="page-hero">
+        <div class="container">
+          <div class="breadcrumb">
+            <a href="/">首頁</a><span>/</span>
+            <a href="/passport">商品護照查詢</a><span>/</span>
+            <span>護照詳情</span>
+          </div>
+          <span class="eyebrow">Product Passport</span>
+          <% if (show.product && show.product.name) { %>
+            <h1><%= data.passport.product_name %></h1>
+          <% } else { %>
+            <h1>商品護照</h1>
+          <% } %>
+          <p>護照代碼：<%= data.passport.passport_code %></p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="/passports/<%= data.passport.passport_code %>/export?format=json&view=<%= data.viewType %>" download>下載 DPP（JSON）</a>
+            <a class="btn btn-secondary" href="/passports/<%= data.passport.passport_code %>/export?format=csv&view=<%= data.viewType %>" download>下載 DPP（CSV）</a>
+          </div>
         </div>
-      <% } %>
+      </section>
 
-      <% if (show.product && show.product.shortDescription && data.passport.product_short_description) { %>
-        <p><strong>商品簡述：</strong><%= data.passport.product_short_description %></p>
-      <% } %>
+      <section class="section">
+        <div class="container">
+          <div class="grid-2" style="align-items: start;">
+            <div class="form-card">
+              <span class="eyebrow">商品資訊</span>
+              <div class="kv" style="margin-top: 20px;">
+                <strong>分類</strong><span><%= data.passport.product_category || '-' %></span>
+                <% if (show.product && show.product.productVersion) { %>
+                  <strong>商品版本</strong><span><%= data.passport.version_no %><% if (data.passport.version_name) { %>（<%= data.passport.version_name %>）<% } %></span>
+                <% } %>
+                <% if (show.product && show.product.productBatchNo) { %>
+                  <strong>商品批次</strong><span><%= data.passport.batch_no %></span>
+                <% } %>
+                <% if (data.passport.manufacture_date) { %>
+                  <strong>製造日期</strong><span><%= fmtDate(data.passport.manufacture_date) %></span>
+                <% } %>
+                <% if (data.passport.expiry_date) { %>
+                  <strong>有效日期</strong><span><%= fmtDate(data.passport.expiry_date) %></span>
+                <% } %>
+              </div>
 
-      <% if (show.product && show.product.usageInstruction && data.passport.usage_instruction) { %>
-        <p><strong>使用方式：</strong><%= data.passport.usage_instruction %></p>
-      <% } %>
+              <% if (show.product && show.product.shortDescription && data.passport.product_short_description) { %>
+                <p style="margin-top: 18px;"><%= data.passport.product_short_description %></p>
+              <% } %>
+              <% if (show.product && show.product.usageInstruction && data.passport.usage_instruction) { %>
+                <p><strong>使用方式：</strong><%= data.passport.usage_instruction %></p>
+              <% } %>
+              <% if (show.product && show.product.caution && data.passport.caution) { %>
+                <p><strong>注意事項：</strong><%= data.passport.caution %></p>
+              <% } %>
+              <% if (show.product && show.product.specification && data.passport.specification) { %>
+                <p><strong>規格：</strong><%= data.passport.specification %></p>
+              <% } %>
+            </div>
 
-      <% if (show.product && show.product.caution && data.passport.caution) { %>
-        <p><strong>注意事項：</strong><%= data.passport.caution %></p>
-      <% } %>
-
-      <% if (show.product && show.product.specification && data.passport.specification) { %>
-        <p><strong>規格：</strong><%= data.passport.specification %></p>
-      <% } %>
-    </div>
-
-    <div class="card">
-      <h2>材料資訊</h2>
+            <% if (show.product && show.product.mainImage && data.passport.product_main_image) { %>
+              <div class="card">
+                <img src="<%= data.passport.product_main_image %>" alt="<%= data.passport.product_name %>" style="border-radius: 18px;" />
+              </div>
+            <% } else { %>
+              <div class="form-card">
+                <span class="eyebrow">關於商品護照</span>
+                <div class="feature-list">
+                  <li>公開材料組成與材料批次</li>
+                  <li>回收來源與處理紀錄追溯</li>
+                  <li>檢測報告摘要與文件</li>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </section>
 
       <% if (show.materials && show.materials.materialList) { %>
-        <% if (!data.materials || data.materials.length === 0) { %>
-          <p class="muted">此批次尚未設定材料。</p>
-        <% } else { %>
-          <table>
-            <thead>
-              <tr>
-                <th>材料</th>
-                <th>角色</th>
-                <th>材料批次</th>
-                <th>製成日期</th>
-                <th>有效日期</th>
-                <% if (show.testingAndReports && show.testingAndReports.testReportSummary) { %>
-                  <th>檢測報告摘要</th>
-                <% } %>
-              </tr>
-            </thead>
-            <tbody>
-              <% for (const m of data.materials) { %>
-                <tr>
-                  <td><%= m.material_name %></td>
-                  <td><%= m.material_role || '-' %></td>
-                  <td><%= m.material_batch_no %></td>
-                  <td><%= m.produced_date || '' %></td>
-                  <td><%= m.expiry_date || '' %></td>
-                  <% if (show.testingAndReports && show.testingAndReports.testReportSummary) { %>
-                    <td><%= m.test_report_summary || '' %></td>
+        <section class="section-sm">
+          <div class="container">
+            <div class="form-card">
+              <span class="eyebrow">材料資訊</span>
+              <% if (!data.materials || data.materials.length === 0) { %>
+                <p class="muted" style="margin-top: 16px;">此批次尚未設定材料。</p>
+              <% } else { %>
+                <div class="detail-table-wrap" style="margin-top: 16px;">
+                  <table class="detail-table">
+                    <thead>
+                      <tr>
+                        <th>材料</th>
+                        <th>角色</th>
+                        <th>材料批次</th>
+                        <th>製成日期</th>
+                        <th>有效日期</th>
+                        <% if (show.testingAndReports && show.testingAndReports.testReportSummary) { %>
+                          <th>檢測報告摘要</th>
+                        <% } %>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% for (const m of data.materials) { %>
+                        <tr>
+                          <td><%= m.material_name %></td>
+                          <td><%= m.material_role || '-' %></td>
+                          <td><%= m.material_batch_no %></td>
+                          <td><%= fmtDate(m.produced_date) || '-' %></td>
+                          <td><%= fmtDate(m.expiry_date) || '-' %></td>
+                          <% if (show.testingAndReports && show.testingAndReports.testReportSummary) { %>
+                            <td><%= m.test_report_summary || '-' %></td>
+                          <% } %>
+                        </tr>
+                      <% } %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+
+              <% if (show.documents && show.documents.showDocumentsList && data.documents && data.documents.length > 0) { %>
+                <h3 style="margin: 24px 0 0; color: var(--heading);">文件列表</h3>
+                <ul class="doc-list">
+                  <% for (const d of data.documents) { %>
+                    <li>
+                      <div><strong><%= d.title %></strong>（<%= d.document_type %>）</div>
+                      <% if (d.summary) { %>
+                        <div class="muted"><%= d.summary %></div>
+                      <% } %>
+                      <% if (d.file_path) { %>
+                        <div style="margin-top: 6px;"><a href="<%= d.file_path %>" style="color: var(--sage-dark); font-weight: 600;">下載 / 查看</a></div>
+                      <% } %>
+                    </li>
                   <% } %>
-                </tr>
+                </ul>
               <% } %>
-            </tbody>
-          </table>
-        <% } %>
+            </div>
+          </div>
+        </section>
       <% } %>
 
-      <% if (show.documents && show.documents.showDocumentsList && data.documents && data.documents.length > 0) { %>
-        <h3 style="margin-top:16px;">文件列表</h3>
-        <ul>
-          <% for (const d of data.documents) { %>
-            <li>
-              <div><strong><%= d.title %></strong>（<%= d.document_type %>）</div>
-              <% if (d.file_path) { %>
-                <div class="muted"><a href="<%= d.file_path %>">下載 / 查看</a></div>
-              <% } %>
-            </li>
-          <% } %>
-        </ul>
-      <% } %>
-    </div>
-
-    <div class="card">
-      <h2>回收來源與處理資訊</h2>
-      <% if (!data.trace || data.trace.length === 0) { %>
-        <p class="muted">此批次無可追溯資料。</p>
-      <% } else { %>
-        <ul>
-          <% for (const t of data.trace) { %>
-            <li>
-              <% if (traceShow.recyclerName) { %>
-                <div><strong>回收廠商：</strong><%= t.recycler_name %></div>
-              <% } %>
-              <% if (traceShow.recyclerCertificateNo) { %>
-                <div><strong>回收證號：</strong><%= t.recycler_certificate_no || '-' %></div>
-              <% } %>
-              <% if (traceShow.recycledBatchTraceCode) { %>
-                <div><strong>追溯編號：</strong><%= t.recycled_trace_code || '-' %></div>
-              <% } %>
-              <% if (traceShow.traceUrl && t.recycled_trace_url) { %>
-                <div class="muted"><a href="<%= t.recycled_trace_url %>">追溯網站</a></div>
-              <% } %>
-              <% if (traceShow.sourceLocation) { %>
-                <div><strong>來源地：</strong><%= t.source_location || '-' %></div>
-              <% } %>
-              <% if (traceShow.processingProcessNo) { %>
-                <div><strong>處理單號：</strong><%= t.process_no || '-' %></div>
-              <% } %>
-              <% if (t.process_date) { %>
-                <div><strong>處理日期：</strong><%= t.process_date || '' %></div>
-              <% } %>
-              <% if (t.process_method) { %>
-                <div><strong>處理方式：</strong><%= t.process_method || '-' %></div>
-              <% } %>
-            </li>
-          <% } %>
-        </ul>
-      <% } %>
-    </div>
-
-    <div class="card">
-      <h2>QR Code</h2>
-      <% if (show.qrCode && data.passport.qr_code_path) { %>
-        <div>
-          <img src="<%= data.passport.qr_code_path %>" alt="QR Code" />
+      <section class="section-sm">
+        <div class="container">
+          <div class="form-card">
+            <span class="eyebrow">回收來源與處理資訊</span>
+            <% if (!data.trace || data.trace.length === 0) { %>
+              <p class="muted" style="margin-top: 16px;">此批次無可追溯資料。</p>
+            <% } else { %>
+              <ul class="trace-list" style="margin-top: 16px;">
+                <% for (const t of data.trace) { %>
+                  <li class="trace-item">
+                    <div class="kv">
+                      <% if (traceShow.recyclerName) { %>
+                        <strong>回收廠商</strong><span><%= t.recycler_name %></span>
+                      <% } %>
+                      <% if (traceShow.recyclerCertificateNo) { %>
+                        <strong>回收證號</strong><span><%= t.recycler_certificate_no || '-' %></span>
+                      <% } %>
+                      <% if (traceShow.recycledBatchTraceCode) { %>
+                        <strong>追溯編號</strong><span><%= t.recycled_trace_code || '-' %></span>
+                      <% } %>
+                      <% if (traceShow.sourceLocation) { %>
+                        <strong>來源地</strong><span><%= t.source_location || '-' %></span>
+                      <% } %>
+                      <% if (traceShow.processingProcessNo) { %>
+                        <strong>處理單號</strong><span><%= t.process_no || '-' %></span>
+                      <% } %>
+                      <% if (t.process_date) { %>
+                        <strong>處理日期</strong><span><%= fmtDate(t.process_date) %></span>
+                      <% } %>
+                      <% if (t.process_method) { %>
+                        <strong>處理方式</strong><span><%= t.process_method %></span>
+                      <% } %>
+                    </div>
+                    <% if (traceShow.traceUrl && t.recycled_trace_url) { %>
+                      <div style="margin-top: 12px;">
+                        <a class="btn btn-secondary" href="<%= t.recycled_trace_url %>" target="_blank" rel="noopener">前往追溯網站</a>
+                      </div>
+                    <% } %>
+                  </li>
+                <% } %>
+              </ul>
+            <% } %>
+          </div>
         </div>
-      <% } else if (!show.qrCode) { %>
-        <p class="muted">此版本不顯示 QR Code。</p>
-      <% } else { %>
-        <p class="muted">尚未提供 QR Code 圖片。</p>
+      </section>
+
+      <% if (show.qrCode) { %>
+        <section class="section-sm" style="padding-bottom: 88px;">
+          <div class="container">
+            <div class="form-card">
+              <span class="eyebrow">QR Code</span>
+              <% if (data.passport.qr_code_path) { %>
+                <div style="margin-top: 16px; max-width: 220px;">
+                  <img src="<%= data.passport.qr_code_path %>" alt="QR Code" style="border-radius: 16px;" />
+                </div>
+              <% } else { %>
+                <p class="muted" style="margin-top: 16px;">尚未提供 QR Code 圖片。</p>
+              <% } %>
+            </div>
+          </div>
+        </section>
       <% } %>
-    </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div>
+          <div class="tagline">SENWEI</div>
+          <small>銀髮友善護膚品牌｜環境友善保養理念</small>
+        </div>
+        <small>網站製作：來就補多媒體行銷</small>
+      </div>
+    </footer>
   </body>
 </html>
-

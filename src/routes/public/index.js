@@ -3,6 +3,9 @@ const express = require('express');
 const router = express.Router();
 
 const traceabilityService = require('../../services/traceabilityService');
+const { dppExportService } = require('../../services/dppExportService');
+const { exportJson } = require('../../utils/exportJson');
+const { exportCsv } = require('../../utils/exportCsv');
 const { homeHeroService } = require('../../services/homeHeroService');
 const { homeFlowStepService } = require('../../services/homeFlowStepService');
 const { aboutHeroService } = require('../../services/aboutHeroService');
@@ -138,7 +141,7 @@ router.get('/passport', async (req, res, next) => {
     }
     hero = hero || defaultPassportHero;
 
-    const batchNo = req.query.batchNo || '';
+    const batchNo = String(req.query.batchNo || '').trim();
     const results = batchNo ? await traceabilityService.lookupByBatchNo({ batchNo }) : [];
 
     return res.render('public/passport', { hero, batchNo, results });
@@ -177,9 +180,46 @@ router.get('/passports/:passportCode', async (req, res, next) => {
   }
 });
 
+const EXPORT_VIEW_TYPES = ['consumer', 'b2b', 'audit'];
+
+router.get('/passports/:passportCode/export', async (req, res, next) => {
+  try {
+    const format = String(req.query.format || 'json').toLowerCase();
+    const viewType = EXPORT_VIEW_TYPES.includes(req.query.view) ? req.query.view : 'consumer';
+    if (format !== 'json' && format !== 'csv') {
+      return res.status(400).send('format 僅支援 json 或 csv');
+    }
+
+    const data = await traceabilityService.getPassportDetailByCode(req.params.passportCode, viewType);
+    if (!data) return res.status(404).render('public/404', { path: req.path });
+
+    const filename = `dpp-${data.passport.passport_code}-${viewType}.${format}`;
+    const content = format === 'json' ? exportJson(data) : exportCsv(data);
+
+    // 下載即紀錄；紀錄失敗不影響下載本身。
+    try {
+      await dppExportService.create({
+        product_passport_id: data.passport.id,
+        export_type: viewType,
+        format,
+        file_path: `/passports/${data.passport.passport_code}/export?format=${format}&view=${viewType}`,
+        exported_by: (req.currentUser && req.currentUser.account) || 'public',
+      });
+    } catch (err) {
+      console.error('dpp_exports 紀錄寫入失敗:', err.message);
+    }
+
+    res.setHeader('Content-Type', format === 'json' ? 'application/json; charset=utf-8' : 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    return res.send(content);
+  } catch (err) {
+    return next(err);
+  }
+});
+
 router.get('/lookup/batch', async (req, res, next) => {
   try {
-    const batchNo = req.query.batch_no;
+    const batchNo = String(req.query.batch_no || '').trim();
     const viewType = req.query.view || 'consumer';
     const results = batchNo ? await traceabilityService.lookupByBatchNo({ batchNo }) : [];
     return res.render('public/batch-lookup', { batchNo: batchNo || '', results, viewType });
